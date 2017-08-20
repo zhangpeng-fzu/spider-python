@@ -1,6 +1,5 @@
 # -*-coding:utf8-*-
 
-from multiprocessing.dummy import Pool as ThreadPool
 import sys
 import time
 from database.mysql import MySQL
