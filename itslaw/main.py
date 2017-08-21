@@ -44,11 +44,11 @@ def spider(url):
     if judgement_id not in content:
         print(content)
         sql = "UPDATE JUGEMENT SET URL='failed',CONTENT='""' WHERE ID='" + judgement_id + "'"  # 执行sql语句
-        MySQLClient.execute(sql)
+        MySQLClient.update(sql)
     else:
         # print("success")
         sql = "UPDATE JUGEMENT SET URL='" + url + "',CONTENT='" + content + "' WHERE ID='" + judgement_id + "'"  # 执行sql语句
-        MySQLClient.execute(sql)
+        MySQLClient.update(sql)
 
 
 while True:

@@ -41,7 +41,7 @@ class Proxy(object):
         port_compile = re.compile(r'<td>(\d+)</td>')  # 匹配端口
         ip = re.findall(ip_compile, str(data))  # 获取所有IP
         port = re.findall(port_compile, str(data))  # 获取所有端口
-        self.ips.extend([":".join(i) for i in zip(ip, port)])   # 组合IP+端口，如：115.112.88.23:8080
+        self.ips.extend([":".join(i) for i in zip(ip, port)])  # 组合IP+端口，如：115.112.88.23:8080
         try:
             self.ip = choice(self.ips)
             proxies = {

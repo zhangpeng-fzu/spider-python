@@ -26,23 +26,31 @@ class MySQL(object):
         self.db.select_db(table)
         self.cursor = self.db.cursor()
 
-    def execute(self, sql):
+    def execute(self, sqlstr):
         try:
             # 提交到数据库执行
-            return self.cursor.execute(sql)
+            return self.cursor.execute(sqlstr)
         except Exception, e:
             print(e)
 
-    def fetchone(self, sql):
+    def update(self, sqlstr):
         try:
-            self.execute(sql)
+            # 提交到数据库执行
+            self.cursor.execute(sqlstr)
+            self.db.commit()
+        except Exception, e:
+            print(e)
+
+    def fetchone(self, sqlstr):
+        try:
+            self.execute(sqlstr)
             return self.cursor.fetchone()
         except Exception, e:
             print(e)
 
-    def fetchmany(self, sql):
+    def fetchmany(self, sqlstr):
         try:
-            record = self.execute(sql)
+            record = self.execute(sqlstr)
             return self.cursor.fetchmany(record)
         except Exception, e:
             print(e)

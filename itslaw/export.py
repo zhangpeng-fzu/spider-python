@@ -28,8 +28,10 @@ while True:
             if size > 1:
                 for j in range(int(size)):
                     ws.write(row, 2 + j, data[j * 2000:(j + 1) * 2000])
+                ws.write(row, 2 + int(size), ii[3].decode('utf8'))
             else:
                 ws.write(row, 2, ii[2].decode('utf8'))
+                ws.write(row, 3, ii[3].decode('utf8'))
         except:
             ws.write(row, 0, "")
             ws.write(row, 1, "")
