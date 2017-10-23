@@ -3,7 +3,7 @@
 import sys
 import time
 from database.mysql import MySQL
-from request.request_manager import requestManager
+from request.request_manager import RequestManager
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -37,9 +37,8 @@ def spider(url):
     row = MySQLClient.fetchone("select * from JUGEMENT WHERE ID = '" + judgement_id + "' and URL !=''")
     if row is not None:
         return
-    print("request start,url=" + url)
     head["Referer"] = head["Referer"].replace("judgementId=1", "judgementId=" + judgement_id)
-    content = requestManager.get(url, head)
+    content = RequestManager.get(url, head)
     if judgement_id not in content:
         print(content)
         sql = "UPDATE JUGEMENT SET URL='failed',CONTENT='""' WHERE ID='" + judgement_id + "'"  # 执行sql语句

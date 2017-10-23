@@ -28,10 +28,10 @@ class RequestManager(object):
     def __init__(self):
         self.url = ""
 
-    def get(self, url, head):
+    @staticmethod
+    def get(url, head):
         print("request start,url=" + url)
         proxies = proxyClient.get_ip()
-        print proxies
         html = requests.get(url, headers=head, proxies=proxies)
         # html = requests.get(url, headers=head, timeout=2)
         return str(html.content)
