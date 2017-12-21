@@ -75,15 +75,7 @@ def get_history(random_id, symbol, resolution, start_timestamp, end_timestamp):
 
             last_timestamp = history_data['t'][-1]
 
-            interval = resolution
-            if resolution == "D":
-                interval = 24 * 60
-            elif resolution == "W":
-                interval = 7 * 24 * 60
-            elif resolution == "M":
-                interval = 30 * 7 * 24 * 60
-
-            start_timestamp = int(last_timestamp) + int(interval) * 60
+            start_timestamp = int(last_timestamp) + get_interval_by_resolution(resolution) * 60
         except Exception, e:
             print e
             return history_data
@@ -105,10 +97,70 @@ def write_file(filename, data):
     ws.write(0, 1, "价格".decode('utf8'))
     row = 1
     for i in range(len(t)):
-        ws.write(row, 0, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t[i])))
-        ws.write(row, 1, str(c[i]))
+        try:
+            ws.write(row, 0, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t[i])))
+            ws.write(row, 1, str(c[i]))
+        except Exception, e:
+            print e
         row = row + 1
+
     w.save(filename)
+
+
+def get_interval_by_resolution(resolution):
+    interval = resolution
+    if resolution == "D":
+        interval = 24 * 60
+    elif resolution == "W":
+        interval = 7 * 24 * 60
+    elif resolution == "M":
+        interval = 30 * 7 * 24 * 60
+    return int(interval)
+
+
+def check_config(currency_list, start_timestamp, end_timestamp, resolution):
+    if len(currency_list) == 0 or currency_list[0] == '':
+        print "请选择货币类型"
+        sys.exit()
+
+    if end_timestamp <= start_timestamp:
+        print "结束时间必须大于开始时间"
+        sys.exit()
+
+    if resolution == '1' and end_timestamp - start_timestamp > 60 * 24 * 180:
+        print "数据频率为1分钟时，时间区间不能超过半年"
+        sys.exit()
+
+    if resolution == '5' and end_timestamp - start_timestamp > 60 * 24 * 365 * 2:
+        print "数据频率为5分钟时，时间区间不能超过两年"
+        sys.exit()
+
+
+def complete_history_data(currency_data, start_timestamp, end_timestamp):
+    first_timestamp = int(currency_data['t'][0])
+    last_timestamp = int(currency_data['t'][-1])
+    head_list = {"t": [], "c": [], "s": 'ok'}
+    tail_list = {"t": [], "c": [], "s": 'ok'}
+
+    if first_timestamp > start_timestamp:
+        i = 0
+        while first_timestamp > start_timestamp:
+            head_list['t'].append(start_timestamp)
+            head_list['c'].append('0')
+            i = i + 1
+            start_timestamp = int(start_timestamp) + get_interval_by_resolution(resolution) * 60
+
+    if last_timestamp < end_timestamp:
+        tail_list = {"t": [], "c": [], "s": 'ok'}
+        i = 0
+        while last_timestamp <= end_timestamp:
+            last_timestamp = int(last_timestamp) + get_interval_by_resolution(resolution) * 60
+            tail_list['t'].append(last_timestamp)
+            tail_list['c'].append('0')
+            i = i + 1
+    currency_data['t'] = head_list['t'] + currency_data['t'] + tail_list['t']
+    currency_data['c'] = head_list['c'] + currency_data['c'] + tail_list['c']
+    return currency_data
 
 
 print "开始读取配置文件"
@@ -119,17 +171,11 @@ resolution = cf.get("inversting", "resolution")
 
 currency_list = currencies.split(",")
 
-if len(currency_list) == 0 or currency_list[0] == '':
-    print "请选择货币类型"
-    sys.exit()
-
 # 转换时间格式
 start_timestamp = int(time.mktime(time.strptime(start, "%Y-%m-%d %H:%M:%S")))
 end_timestamp = int(time.mktime(time.strptime(end, "%Y-%m-%d %H:%M:%S")))
 
-if end_timestamp <= start_timestamp:
-    print "结束时间必须大于开始时间"
-    sys.exit()
+check_config(currency_list, start_timestamp, end_timestamp, resolution)
 
 for currency in currency_list:
     try:
@@ -147,6 +193,7 @@ for currency in currency_list:
         if currency_data['s'] == "no_data":
             print "该时间段没有数据"
             continue
+        currency_data = complete_history_data(currency_data, start_timestamp, end_timestamp)
 
         write_file("result/" + filename, data=currency_data)
 
