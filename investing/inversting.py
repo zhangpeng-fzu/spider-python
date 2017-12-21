@@ -38,23 +38,30 @@ def get_random_id(url):
         html = requests.get(url, headers=head)
         content = str(html.content)
 
+        res = {}
+
         results = re.findall(r"carrier=.*?&time", content, re.I | re.S | re.M)
         for result in results:
-            return result.replace("carrier=", "").replace("&time", "")
-
+            res["random_id"] = result.replace("carrier=", "").replace("&time", "")
+            break
+        results = re.findall(r"pair_ID=.*?&", content, re.I | re.S | re.M)
+        for result in results:
+            res["symbol"] = result.replace("pair_ID=", "").replace("&", "")
+            break
+        return res
     except Exception, e:
         print e
 
 
 # 获取历史数据
-def get_history(random_id, resolution, start_timestamp, end_timestamp):
+def get_history(random_id, symbol, resolution, start_timestamp, end_timestamp):
     history_data = {"t": [], "c": [], "s": 'ok'}
 
     # 分段获取
     while start_timestamp < end_timestamp:
         try:
-            history_url = "https://tvc4.forexpros.com/%s/%s/6/6/28/history?symbol=2111&resolution=%s&from=%s&to=%s" % (
-                random_id, int(time.time()), resolution, start_timestamp, end_timestamp)
+            history_url = "https://tvc4.forexpros.com/%s/%s/6/6/28/history?symbol=%s&resolution=%s&from=%s&to=%s" % (
+                random_id, int(time.time()), symbol, resolution, start_timestamp, end_timestamp)
             head['Host'] = 'tvc4.forexpros.com'
             html = requests.get(history_url, headers=head)
             content = str(html.content)
@@ -131,12 +138,12 @@ for currency in currency_list:
         filename = "%s_%s_%s.xls" % (
             currency.replace("/", "_"), start.split(" ")[0].replace("-", ""), end.split(" ")[0].replace("-", ""))
 
-        random_id = get_random_id("https://cn.investing.com/currencies/%s-chart" % (currency.replace("/", "-").lower()))
-        if random_id is None:
+        res = get_random_id("https://cn.investing.com/currencies/%s-chart" % (currency.replace("/", "-").lower()))
+        if len(res) is None:
             print "获取随机ID失败"
             continue
 
-        currency_data = get_history(random_id, resolution, start_timestamp, end_timestamp)
+        currency_data = get_history(res['random_id'], res['symbol'], resolution, start_timestamp, end_timestamp)
         if currency_data['s'] == "no_data":
             print "该时间段没有数据"
             continue
