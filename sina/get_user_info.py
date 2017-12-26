@@ -54,5 +54,9 @@ def get_user_info(user_id):
     except Exception, e:
         print e
 
+while True:
+    user_id = MySQLClient.fetchone("SELECT USER_ID FROM user_info WHERE USER_NAME is NULL ")[0]
+    get_user_info("3166023711")
+    count = MySQLClient.fetchone("select count(*) from user_info")[0]
+    print user_id, count
 
-get_user_info("3166023711")
