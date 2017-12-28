@@ -20,22 +20,33 @@ def parse_weibo(weibo_data, user_id):
     is_forward = "false"
     weibo_id = weibo_data.split(">")[0].replace("=", "").replace("\"", "")
     results = re.findall(r"class=\"ctt\">.*?赞", weibo_data, re.I | re.S | re.M)
-    weibo_content = results[0].replace("class=\"ctt\">", "").replace("赞", "")
+    if len(results) != 0:
+        weibo_content = results[0].replace("class=\"ctt\">", "").replace("赞", "")
+    else:
+        weibo_content = ""
 
     results = re.findall(r"赞\[.*?\]", weibo_data, re.I | re.S | re.M)
-    weibo_zan_num = results[0].replace("赞[", "").replace("]", "")
+    if len(results) != 0:
+        weibo_zan_num = results[0].replace("赞[", "").replace("]", "")
+    else:
+        weibo_zan_num = 0
 
     results = re.findall(r"评论\[.*?\]", weibo_data, re.I | re.S | re.M)
-    weibo_comment_num = results[0].replace("评论[", "").replace("]", "")
+
+    if len(results) != 0:
+        weibo_comment_num = results[0].replace("评论[", "").replace("]", "")
+    else:
+        weibo_comment_num = 0
 
     results = re.findall(r"转发\[.*?\]", weibo_data, re.I | re.S | re.M)
-    weibo_forward_num = results[0].replace("转发[", "").replace("]", "")
 
-    results = re.findall(r"uid=.*?&", weibo_data, re.I | re.S | re.M)
-    for result in results:
-        if result.replace("uid=", "").replace("&", "")[0:10] != user_id:
-            is_forward = "true"
-            break
+    if len(results) != 0:
+        weibo_forward_num = results[0].replace("转发[", "").replace("]", "")
+    else:
+        weibo_forward_num = 0
+
+    if "转发了" in weibo_data:
+        is_forward = "true"
 
     results = re.findall(r"class=\"ct\">.*?来自", weibo_data, re.I | re.S | re.M)
     post_time = results[0].replace("class=\"ct\">", "").replace("&nbsp;来自", "")
@@ -61,6 +72,7 @@ def get_weibo_info(user_id):
             weibo_list.pop(0)
 
             if len(weibo_list) == 0:
+                print "无法获取微博列表"
                 return None
 
             for weibo_data in weibo_list:
@@ -78,7 +90,7 @@ def start_get_weibo_info():
             "SELECT USER_ID FROM user_info u WHERE (SELECT COUNT(1) as num from weibo_info w WHERE u.USER_ID = w.POSTER_ID ) = 0 ")[
             0]
         if get_weibo_info(user_id) is None:
-            time.sleep(60)
+            time.sleep(30)
             change_cookie()
             continue
         print "%s的微博列表获取完成" % user_id

@@ -89,9 +89,8 @@ def start_id_generator(seed_id):
         user_id = str(user_id)
         for i in range(20):
             if get_fllowee(user_id, i + 1) is None or get_fllower(user_id, i + 1) is None:
-                time.sleep(60)
+                time.sleep(30)
                 change_cookie()
-                i = i - 1
                 continue
 
         MySQLClient.update("UPDATE user_info SET IS_UPDATE = 'true' WHERE USER_ID = '" + user_id + "'")
@@ -100,4 +99,4 @@ def start_id_generator(seed_id):
         print "%s的粉丝和关注列表获取完成" % user_id
 
 
-start_id_generator("210576870")
+start_id_generator("2093492691")
