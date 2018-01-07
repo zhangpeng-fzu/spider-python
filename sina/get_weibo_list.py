@@ -5,7 +5,7 @@ import time
 import re
 import requests
 from cookie_manager import *
-from urllib import urlencode
+import uuid
 from database.mysql import MySQL
 
 reload(sys)
@@ -71,12 +71,17 @@ def get_weibo_info(user_id):
             weibo_list = content.split('class="c" id')
             weibo_list.pop(0)
 
-            if len(weibo_list) == 0:
-                print "无法获取微博列表"
-                return None
+            if len(weibo_list) == 0 or content.find("没发过微博") != -1:
+                if page == 1:
+                    print "该用户微博列表无数据"
+                    return -1
+                else:
+                    print "该用户第%s页微博列表无数据" % page
+                    return 0
 
             for weibo_data in weibo_list:
                 parse_weibo(weibo_data, user_id)
+            print "一共获取%s条微博数据" % len(weibo_list)
 
         except Exception, e:
             print e
@@ -89,10 +94,14 @@ def start_get_weibo_info():
         user_id = MySQLClient.fetchone(
             "SELECT USER_ID FROM user_info u WHERE (SELECT COUNT(1) as num from weibo_info w WHERE u.USER_ID = w.POSTER_ID ) = 0 ")[
             0]
-        if get_weibo_info(user_id) is None:
+        res = get_weibo_info(user_id)
+        if res is None:
             time.sleep(30)
             change_cookie()
             continue
+        if res == -1:
+            MySQLClient.execute("INSERT INTO weibo_info( WEIBO_ID,POSTER_ID,WEIBO_CONTENT) VALUES ('%s','%s','%s')" % (
+                str(uuid.uuid1()).replace("-", ""), user_id, "没有微博数据"))
         print "%s的微博列表获取完成" % user_id
 
 

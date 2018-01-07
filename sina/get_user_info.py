@@ -46,15 +46,22 @@ def get_user_info(user_id):
                 fllowee_num = 0
 
             results = re.findall(r"<title>.*?</title>", content, re.I | re.S | re.M)
-            if len(results) != 0:
-                user_name = results[0].replace("<title>", "").replace("的微博</title>", "").encode('UTF-8')
-            else:
+            try:
+                if len(results) != 0:
+                    user_name = results[0].replace("<title>", "").replace("的微博</title>", "").encode("utf-8")
+                else:
+                    user_name = ""
+            except Exception, e:
                 user_name = ""
 
+            print "%s的用户名为%s" % (user_id, user_name)
+
             sql = "INSERT INTO user_info VALUES ( '%s','%s','%s','%s','%s','%s','%s') ON DUPLICATE KEY UPDATE USER_NAME = '%s',USER_URL = '%s',FLLOWER_NUM='%s',FLLOWEE_NUM='%s',POST_NUM='%s'" \
-                  % (user_id, user_name, user_url, fllower_num, fllowee_num, post_num, "false", user_name,
-                     user_url, fllower_num, fllowee_num,
-                     post_num)
+                  % (
+                      user_id, user_name.encode("utf-8"), user_url, fllower_num, fllowee_num, post_num, "false",
+                      user_name,
+                      user_url, fllower_num, fllowee_num,
+                      post_num)
 
             MySQLClient.execute(sql)
         except Exception, e:

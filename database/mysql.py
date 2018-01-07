@@ -14,7 +14,7 @@ class MySQL(object):
         self.user = 'root'
         self.passwd = 'admin'
         self.port = 3306
-        self.table = "itslaw"
+        self.table = "weibo"
 
         self.db = MySQLdb.connect(host=self.host, user=self.user, passwd=self.passwd, port=self.port,
                                   charset='utf8')
@@ -29,7 +29,10 @@ class MySQL(object):
     def execute(self, sqlstr):
         try:
             # 提交到数据库执行
-            return self.cursor.execute(sqlstr)
+            count = self.cursor.execute(sqlstr)
+            self.db.commit()
+            return count
+
         except Exception, e:
             print(e)
 

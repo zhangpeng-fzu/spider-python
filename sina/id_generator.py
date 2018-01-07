@@ -85,11 +85,11 @@ def get_fllowee(user_id, page):
 def start_id_generator(seed_id):
     user_id = seed_id
     count = 0
-    while user_id is not None and int(count) <= 15000:
+    while user_id is not None and int(count) <= 20000:
         user_id = str(user_id)
         for i in range(20):
             if get_fllowee(user_id, i + 1) is None or get_fllower(user_id, i + 1) is None:
-                time.sleep(30)
+                time.sleep(10)
                 change_cookie()
                 continue
 
