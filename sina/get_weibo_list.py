@@ -104,12 +104,19 @@ def start_get_weibo_info():
         if res is None:
             print "微博反爬虫，等待1分钟并更换cookie"
             change_cookie()
-            time.sleep(30)
+            time.sleep(10)
             continue
         if res == -1:
             MySQLClient.execute("INSERT INTO weibo_info( WEIBO_ID,POSTER_ID,WEIBO_CONTENT) VALUES ('%s','%s','%s')" % (
                 str(uuid.uuid1()).replace("-", ""), user_id, "没有微博数据"))
-        print "%s的微博列表获取完成" % user_id
+
+        sql = "select count(0) from weibo_info WHERE POSTER_ID='%s'" % user_id
+        count = int(MySQLClient.fetchone(sql)[0])
+        if count <= 0:
+            MySQLClient.execute("INSERT INTO weibo_info( WEIBO_ID,POSTER_ID,WEIBO_CONTENT) VALUES ('%s','%s','%s')" % (
+                str(uuid.uuid1()).replace("-", ""), user_id, "没有微博数据"))
+
+        print "%s的微博列表获取完成,一共%s条记录" % (user_id, count)
 
 
 start_get_weibo_info()
