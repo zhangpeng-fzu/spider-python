@@ -49,7 +49,14 @@ def parse_weibo(weibo_data, user_id):
         is_forward = "true"
 
     results = re.findall(r"class=\"ct\">.*?来自", weibo_data, re.I | re.S | re.M)
-    post_time = results[0].replace("class=\"ct\">", "").replace("&nbsp;来自", "")
+    if len(results) != 0:
+        post_time = results[0].replace("class=\"ct\">", "").replace("&nbsp;来自", "")
+    else:
+        results = re.findall(r"class=\"ct\">.*?</span>", weibo_data, re.I | re.S | re.M)
+        if len(results) != 0:
+            post_time = results[0].replace("class=\"ct\">", "").replace("</span>", "")
+        else:
+            post_time = ""
 
     sql = "INSERT INTO weibo_info VALUES ( '%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
           % (weibo_id, weibo_content, "", weibo_zan_num, weibo_forward_num, weibo_comment_num, user_id,
@@ -66,12 +73,11 @@ def get_weibo_info(user_id):
             html = requests.get(user_url, headers=get_head())
             content = str(html.content)
             if len(content) == 0:
-                print "微博反爬虫，等待1分钟"
                 return None
             weibo_list = content.split('class="c" id')
             weibo_list.pop(0)
 
-            if len(weibo_list) == 0 or content.find("没发过微博") != -1:
+            if len(weibo_list) == 0:
                 if page == 1:
                     print "该用户微博列表无数据"
                     return -1
@@ -85,7 +91,7 @@ def get_weibo_info(user_id):
 
         except Exception, e:
             print e
-            return None
+
     return "success"
 
 
@@ -96,8 +102,9 @@ def start_get_weibo_info():
             0]
         res = get_weibo_info(user_id)
         if res is None:
-            time.sleep(30)
+            print "微博反爬虫，等待1分钟并更换cookie"
             change_cookie()
+            time.sleep(30)
             continue
         if res == -1:
             MySQLClient.execute("INSERT INTO weibo_info( WEIBO_ID,POSTER_ID,WEIBO_CONTENT) VALUES ('%s','%s','%s')" % (
