@@ -1,10 +1,6 @@
 # -*-coding:utf8-*-
 
 import sys
-import json
-import time
-import urllib
-import os
 import requests
 import threadpool
 from database.mysql import MySQL
@@ -35,6 +31,8 @@ head = {
     'Content-Length': '388'
 }
 
+intervel = 2500
+
 
 def get_ein(page):
     print "正在获取第%s页公司信息" % page
@@ -53,8 +51,8 @@ def get_ein(page):
         "ZipRadius": "Zip Only",
         "City": "",
         "Participation": "",
-        "revenueRangeLow": "$3,000",
-        "revenueRangeHigh": "max",
+        "revenueRangeLow": "$" + str(start),
+        "revenueRangeHigh": "$" + str(end),
         "PeopleZipRadius": "Zip Only",
         "PeopleCity": "",
         "PeopleRevenueRangeLow": "$0",
@@ -65,35 +63,52 @@ def get_ein(page):
     }
     try:
         r = requests.post("http://www.guidestar.org/search/SubmitSearch", data=form_data, headers=head)
-        print r.content
         hits = r.json()["Hits"]
-        # if len(hits) == 0:
-        #     return 0
+        count = 0
+        if page == 1:
+            count = r.json()['TotalHits']
+        if count > 10000:
+            return count
+
+        if len(hits) == 0:
+            return
         sql = "INSERT INTO company(EIN) VALUES "
         for hit in hits:
             sql = sql + "('%s')," % hit["Ein"]
         sql = sql[0: len(sql) - 1]
         MySQLClient.execute(sql)
+
         print "获取第%s页公司信息完成" % page
+        return count
     except Exception, e:
         print e
         print "=====================获取第%s页公司信息异常===========================" % page
         # return 0
 
 
-get_ein(401)
-# pool = threadpool.ThreadPool(4)
-# page_list = []
-# for page in range(16313):
-#     page_list.append(page + 400)
-#
-# request_list = threadpool.makeRequests(get_ein, page_list)
-# [pool.putRequest(req) for req in request_list]
-# pool.wait()
-# while True:
-#
-#     res = get_ein("http://www.guidestar.org/search/SubmitSearch", page=page)
-#     if res == 0:
-#         print "公司编码已爬取完成"
-#         break
-#     page = page + 1
+global start
+global end
+
+start = 0
+end = start + intervel
+
+while True:
+
+    count = get_ein(1)
+    while count > 10000:
+        end = end - 1000
+        count = get_ein(1)
+
+    pages = int(count / 25) + 1
+
+    pool = threadpool.ThreadPool(4)
+    page_list = []
+    for page in range(pages):
+        page_list.append(page + 2)
+
+    request_list = threadpool.makeRequests(get_ein, page_list)
+    [pool.putRequest(req) for req in request_list]
+    pool.wait()
+
+    start = end
+    end = end + intervel
