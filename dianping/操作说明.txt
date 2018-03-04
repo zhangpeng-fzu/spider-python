@@ -1,0 +1,15 @@
+
+准备步骤
+	python版本：python 2.7
+	mysql版本：mysql 5.7及以上
+	mysql数据库名：dianping   
+
+	1. 设置数据库密码：打开mysql.py,设置账号和密码
+	2. 导入shop_info.sql
+
+
+启动步骤
+	1.启动前替换cookie，cookie获取方法，打开大众点评主页 F12，获取cookie
+	2.启动get_shop_id.py，获取商铺ID
+	3.启动get_shop_info.py,获取商铺详细信息
+
