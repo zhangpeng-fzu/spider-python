@@ -10,10 +10,10 @@ import requests
 from threadpool import *
 
 config = {
-    'host': '127.0.0.1',
+    'host': '172.31.51.19',
     'port': 3306,
     'user': 'root',
-    'password': 'admin',
+    'password': 'root',
     'db': 'zhihu',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
         while True:
             with connection.cursor() as cursor:
-                sql = "select ID from user_info WHERE LOCATION is NULL limit 0,100"
+                sql = "select ID from user_info WHERE LOCATION is NULL limit 0,1"
                 cursor.execute(sql)
                 ret1 = cursor.fetchall()
 
@@ -174,6 +174,7 @@ if __name__ == '__main__':
                 if get_user_info(user_id) != 200:
                     print("获取过程中出现异常，暂时停止抓取")
                     time.sleep(1)
+                time.sleep(1)
     except Exception as e:
         print(e)
     finally:

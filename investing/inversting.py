@@ -14,7 +14,6 @@ sys.setdefaultencoding('utf-8')
 
 cf = ConfigParser.ConfigParser()
 cf.read("application.conf")
-
 head = {
     'Accept': 'application/json',
     'Accept-Encoding': 'gzip, deflate, sdch, br',
@@ -127,11 +126,11 @@ def check_config(currency_list, start_timestamp, end_timestamp, resolution):
         print "结束时间必须大于开始时间"
         sys.exit()
 
-    if resolution == '1' and end_timestamp - start_timestamp > 60 * 24 * 180:
+    if resolution == '1' and end_timestamp - start_timestamp > 60 * 60 * 24 * 180:
         print "数据频率为1分钟时，时间区间不能超过半年"
         sys.exit()
 
-    if resolution == '5' and end_timestamp - start_timestamp > 60 * 24 * 365 * 2:
+    if resolution == '5' and end_timestamp - start_timestamp > 60 * 60 * 24 * 365 * 2:
         print "数据频率为5分钟时，时间区间不能超过两年"
         sys.exit()
 
