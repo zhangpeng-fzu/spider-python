@@ -60,7 +60,7 @@ def parseHtml(user_id, response_text):
         userd_data_json = json.loads(fixed)[user_id]
     except Exception as e:
         print("获取用户信息出现异常，暂时停止爬虫")
-        time.sleep(10)
+        time.sleep(1)
         try:
             with connection.cursor() as cursor:
                 # 执行sql语句，插入记录
@@ -153,27 +153,27 @@ def parseHtml(user_id, response_text):
 # 主程序
 if __name__ == '__main__':
     try:
-        # pool = ThreadPool(10)
+        pool = ThreadPool(5)
 
         while True:
             with connection.cursor() as cursor:
-                sql = "select ID from user_info WHERE LOCATION is NULL limit 0,1"
+                sql = "select ID from user_info WHERE LOCATION is NULL limit 0,100"
                 cursor.execute(sql)
                 ret1 = cursor.fetchall()
-                user_id = str(ret1[0]["ID"]).strip()
+
                 # ids = []
                 # for dic in ret1:
                 #     ids.append(str(dic["ID"]).strip())
-
+                #
                 # my_requests = makeRequests(get_user_info, ids)
                 # [pool.putRequest(req) for req in my_requests]
                 # pool.wait()
 
+                user_id = str(ret1[0]["ID"]).strip()
                 # if get_user_info("xu-chen-hao-9-24") != 200:
                 if get_user_info(user_id) != 200:
                     print("获取过程中出现异常，暂时停止抓取")
-                    time.sleep(30)
-                time.sleep(1)
+                    time.sleep(1)
     except Exception as e:
         print(e)
     finally:
