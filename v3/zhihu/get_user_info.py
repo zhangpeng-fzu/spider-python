@@ -52,17 +52,9 @@ def parseHtml(user_id, response_text):
     try:
         userd_data_json = json.loads(fixed)[user_id]
     except Exception as e:
-        print("获取用户信息出现异常，暂时停止爬虫")
-        time.sleep(1)
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute('UPDATE user_info set LOCATION = "invalid" WHERE ID = %s', user_id)
-            connection.commit()
-        except Exception as e:
-            print(e)
-        return True
+        return False
 
-    # 性别 0:男 1:女 -1:不男不女
+    # 性别 0:女 1:男 -1:不男不女
     genger = userd_data_json["gender"]
 
     # 用户地理位置
@@ -163,7 +155,13 @@ if __name__ == '__main__':
                 user_id = str(ret1[0]["ID"]).strip()
                 # if get_user_info("xu-chen-hao-9-24") != 200:
                 if get_user_info(user_id) != 200:
-                    print("获取过程中出现异常，暂时停止抓取")
+                    print("获取用户信息出现异常，暂时停止爬虫")
+                    try:
+                        cursor.execute('UPDATE user_info set LOCATION = "invalid" WHERE ID = %s', user_id)
+                        connection.commit()
+                    except Exception as e:
+                        print(e)
+
                     time.sleep(1)
                 time.sleep(0.5)
     except Exception as e:
