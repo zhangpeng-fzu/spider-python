@@ -161,8 +161,9 @@ if __name__ == '__main__':
                         connection.commit()
                     except Exception as e:
                         print(e)
-
                     time.sleep(1)
+
+                # 抓取频率控制，可调整
                 time.sleep(0.5)
     except Exception as e:
         print(e)
