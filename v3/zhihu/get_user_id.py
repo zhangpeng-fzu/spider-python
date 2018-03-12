@@ -66,7 +66,8 @@ if __name__ == '__main__':
                 count = int(ret[0]["count(*)"])
 
                 # 当数量大于100000时停止爬取
-                if count > 100000:
+                if count > zhihu.max_user_num:
+                    print("已达到爬取用户最大数量，停止爬虫")
                     sys.exit()
 
                 # 获取未被获取关注列表的用户ID
