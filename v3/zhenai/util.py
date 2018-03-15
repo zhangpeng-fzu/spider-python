@@ -9,8 +9,8 @@ for line in f.readlines():
     citys = line.split(",")
     for i in range(len(citys) - 1):
         city = citys[i + 1]
-        city = city.replace("c", "").replace("\"", "").replace("{n", "").replace("}", "")
-        arr = city.split("::")
+        city = city.replace("c", "").replace("\"", "").replace("{n:", "").replace("}", "")
+        arr = city.split(":")
         try:
             city_code_map[arr[1]] = arr[0]
         except Exception as e:
@@ -26,4 +26,5 @@ for obj in csv_file:
     for d, x in city_code_map.items():
         if d in obj[1]:
             obj.append(x)
+    print(obj)
     csv_write.writerow(obj)

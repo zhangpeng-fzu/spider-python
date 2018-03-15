@@ -1,14 +1,17 @@
 # -*-coding:utf-8-*-
 
-import re
-import time
-import oss2
-import random
+import configparser
+import csv
 import hashlib
+import random
+import re
+import sys
+import threading
+import time
+
+import oss2
 import pymysql
 import requests
-import configparser
-import threading
 from threadpool import *
 
 cf = configparser.ConfigParser()
@@ -19,7 +22,7 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'root',
+    'password': 'admin',
     'db': 'zhenai',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -45,9 +48,11 @@ head = {
     "X-Requested-With": "XMLHttpRequest"
 }
 
+city_code_map = {}
+
 
 # 通过关键词获取公司列表信息
-def get_user_list(sex, begin_age, end_age, city_code, max_num):
+def get_user_list(sex, begin_age, end_age, province, city, max_num):
     page = 1
     while True:
 
@@ -56,10 +61,10 @@ def get_user_list(sex, begin_age, end_age, city_code, max_num):
             break
 
         print("开始第%s页的用户数据！" % page)
-        url = "http://search.zhenai.com/v2/search/getPinterestData.do?sex=%s&agebegin=%s&ageend=%s&workcityprovince=%s&workcitycity=-1&" \
+        url = "http://search.zhenai.com/v2/search/getPinterestData.do?sex=%s&agebegin=%s&ageend=%s&workcityprovince=%s&workcitycity=%s&" \
               "h1=-1&h2=-1&salaryBegin=-1&salaryEnd=-1&occupation=-1&h=-1&c=-1&workcityprovince1=-1" \
               "&workcitycity1=-1&constellation=-1&animals=-1&stock=-1&belief=-1&condition=66&orderby=hpf&" \
-              "hotIndex=0&online=&currentpage=%s&topSearch=true" % (sex, begin_age, end_age, city_code, page)
+              "hotIndex=0&online=&currentpage=%s&topSearch=true" % (sex, begin_age, end_age, province, city, page)
         try:
 
             r = requests.get(url, headers=head)
@@ -206,13 +211,29 @@ def exceed_max_num(max_num):
         return False
 
 
+def init_code_map():
+    csv_file = csv.reader(open("city.csv", "r"))
+    for obj in csv_file:
+        city_code = {"province": obj[2], "city": obj[3]}
+        city_code_map[obj[0]] = city_code
+
+
 # 主程序
 if __name__ == '__main__':
+    init_code_map()
+
     sex = cf.get("zhenai", "sex")
     city_code = cf.get("zhenai", "cityCode")
     max_num = cf.get("zhenai", "maxNum")
     begin_age = cf.get("zhenai", "beginAge")
     end_age = cf.get("zhenai", "endAge")
 
+    province = city_code_map[city_code]["province"]
+    city = city_code_map[city_code]["city"]
+
+    if city == "" or city is None:
+        print("未找到该城市对应的code，请输入正确的城市编码")
+        sys.exit()
+
     pool = ThreadPool(1)
-    get_user_list(sex, begin_age, end_age, "10102000", max_num)
+    get_user_list(sex, begin_age, end_age, province, city, max_num)
