@@ -2,22 +2,34 @@
 
 import re
 import time
-
+import oss2
+import random
+import hashlib
 import pymysql
 import requests
+import configparser
+import threading
+from threadpool import *
+
+cf = configparser.ConfigParser()
+cf.read("zhenai.ini", encoding="utf-8")
 
 # 数据库配置
 config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'admin',
+    'password': 'root',
     'db': 'zhenai',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
 }
 
 connection = pymysql.connect(**config)
+MD5 = hashlib.md5()
+lock = threading.RLock()
+auth = oss2.Auth('LTAInxELbFWfNSjr', 'Nu0UxZpZcpNBeJJAfvLRKUgmSARZFV')
+bucket = oss2.Bucket(auth, 'oss-cn-hangzhou.aliyuncs.com', 'xxroom')
 
 # 获取公司请求的http头部数据
 head = {
@@ -35,45 +47,114 @@ head = {
 
 
 # 通过关键词获取公司列表信息
-def get_user_info(sex):
-    url = "http://search.zhenai.com/v2/search/getPinterestData.do?sex=%s&agebegin=18&ageend=-1&workcityprovince=10103000&workcitycity=-1&" \
-          "h1=-1&h2=-1&salaryBegin=-1&salaryEnd=-1&occupation=-1&h=-1&c=-1&workcityprovince1=-1" \
-          "&workcitycity1=-1&constellation=-1&animals=-1&stock=-1&belief=-1&condition=66&orderby=hpf&" \
-          "hotIndex=0&online=&currentpage=1&topSearch=true" % sex
+def get_user_list(sex, begin_age, end_age, city_code, max_num):
+    page = 1
+    while True:
+
+        if exceed_max_num(max_num):
+            print("已达到最大用户爬取数量上限，结束爬虫！")
+            break
+
+        print("开始第%s页的用户数据！" % page)
+        url = "http://search.zhenai.com/v2/search/getPinterestData.do?sex=%s&agebegin=%s&ageend=%s&workcityprovince=%s&workcitycity=-1&" \
+              "h1=-1&h2=-1&salaryBegin=-1&salaryEnd=-1&occupation=-1&h=-1&c=-1&workcityprovince1=-1" \
+              "&workcitycity1=-1&constellation=-1&animals=-1&stock=-1&belief=-1&condition=66&orderby=hpf&" \
+              "hotIndex=0&online=&currentpage=%s&topSearch=true" % (sex, begin_age, end_age, city_code, page)
+        try:
+
+            r = requests.get(url, headers=head)
+
+            if r.status_code != 200:
+                print("第%s页的用户数据获取异常！code=%s" % r.status_code)
+                break
+
+            response_json = r.json()
+            user_data = response_json["data"]
+
+            if len(user_data) == 0:
+                break
+
+            for user in user_data:
+                user["sex"] = sex
+                user["cityCode"] = city_code
+
+            my_requests = makeRequests(get_user_info_by_id, user_data)
+            [pool.putRequest(req) for req in my_requests]
+            pool.wait()
+            print("第%s页的用户数据完成！" % page)
+
+            page = page + 1
+        except Exception as e:
+            print(e)
+
+
+def get_user_info_by_id(user):
+    user_id = user["memberId"]
+    city_code = user["cityCode"]
+    sex = user["sex"]
+    if not is_need_spider(user_id):
+        print("【%s】的用户信息已存在，跳过" % user_id)
+        return
+    print("正在获取【%s】的用户信息" % user_id)
+
+    nick_name = user["nickName"]
+    age = str(user["age"]).replace("岁", "")
+    photo_path = user["photopath"]
+
+    photo_path = upload_file(photo_path)
+
+    res = get_album(user_id)
+    ablum = res["ablum"]
+    if ablum is None or len(ablum) <= 1:
+        print("【%s】的用户相册图片数量不大于1张，忽略该用户" % user_id)
+        return
+
+    introduce = res["introduce"]
+
     try:
-        r = requests.get(url, headers=head)
-        response_json = r.json()
-        user_data = response_json["data"]
-
-        for user in user_data:
-            user_id = user["memberId"]
-            nickName = user["nickName"]
-            age = str(user["age"]).replace("岁", "")
-            photo_path = user["photopath"]
-
-            res = get_album(user_id)
-            ablum = res["ablum"]
-            introduce = res["introduce"]
-
-            if len(ablum) <= 1:
-                continue
-
-            try:
-                with connection.cursor() as cursor:
-                    # 执行sql语句，插入记录
-                    sql = 'INSERT INTO user_info VALUES (%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE ' \
-                          'NICK_NAME=%s,AGE=%s,PHOTO_PATH=%s,SEX=%s,INTRODUCE=%s,ALBUM=%s'
-                    cursor.execute(sql, (
-                        user_id, nickName, age, photo_path, sex, introduce, str(ablum),
-                        nickName, age, photo_path, sex, introduce, str(ablum)))
-                    connection.commit()
-            except Exception as e:
-                print(e)
-
+        with connection.cursor() as cursor:
+            # 执行sql语句，插入记录
+            sql = 'INSERT INTO user_info VALUES (%s, %s, %s, %s, %s, %s, %s,%s)'
+            cursor.execute(sql, (user_id, nick_name, age, photo_path, sex, introduce, str(ablum), city_code))
+            connection.commit()
     except Exception as e:
         print(e)
+    print("完成获取【%s】的用户信息" % user_id)
 
 
+# 判断是否需要抓取该用户
+def is_need_spider(user_id):
+    # lock.acquire()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'SELECT ID FROM user_info WHERE ID=%s' % user_id
+            cursor.execute(sql)
+            res = cursor.fetchone()
+            return res is None
+    except Exception as e:
+        print(e)
+        return True
+        # finally:
+        # lock.release()
+
+
+# 上传文件到阿里云
+def upload_file(url):
+    photo_stream = requests.get(url)
+
+    file_dictory = "user_photos/" + time.strftime("%Y%m")
+    MD5.update(((str(int(round(time.time() * 1000)))) + str(random.randint(0, 1000))).encode(encoding='utf-8'))
+    file_name = MD5.hexdigest() + ".jpg"
+    ali_file_path = file_dictory + "/" + file_name
+    try:
+        bucket.put_object(ali_file_path, photo_stream)
+        return "http://xxroom.oss-cn-hangzhou.aliyuncs.com/" + ali_file_path
+    except Exception as e:
+        print(e)
+        return url
+
+
+# 获取相册和内心独白
 def get_album(member_id):
     url = "http://album.zhenai.com/u/%s" % member_id
     try:
@@ -88,24 +169,50 @@ def get_album(member_id):
             introduce = results[0].replace("lider-area-js\">", "").replace("<span", "")
 
         ablum_list = []
-        results = re.findall(r"data-big-img.*?data-mid-img", response_html, re.I | re.S | re.M)
+        results = re.findall(r"data-mid-img.*?src", response_html, re.I | re.S | re.M)
         size = len(results)
         if size > 9:
             size = 9
-        for i in range(size):
-            ablum_list.append(results[i].replace("data-big-img=\"", "").replace("\" data-mid-img", ""))
 
-        res = {}
-        res["introduce"] = introduce.replace("&nbsp;", " ").replace("<br/>", "")[1:]
-        res["ablum"] = ablum_list
+        # 相册照片数量不大于1张，忽略该用户
+        if size <= 1:
+            return {"introduce": "", "ablum": ablum_list}
+
+        for i in range(size):
+            ablum_photo_url = upload_file(results[i].replace("data-mid-img=\"", "").replace("\" src", ""))
+            ablum_list.append(ablum_photo_url)
+
+        res = {"introduce": introduce.replace("&nbsp;", " ").replace("<br/>", "")[1:], "ablum": ablum_list}
         return res
 
     except Exception as e:
         print(e)
-        # 休息0.1s,防止触发网站反爬虫
     time.sleep(0.1)
+
+
+def exceed_max_num(max_num):
+    try:
+        with connection.cursor() as cursor:
+            # 查询当前已获取用户ID数量
+            cursor.execute("select count(*) from user_info")
+            ret = cursor.fetchall()
+            count = int(ret[0]["count(*)"])
+
+            # 当数量大于设置上限时停止爬取
+            if count > int(max_num):
+                return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 # 主程序
 if __name__ == '__main__':
-    get_user_info(1)
+    sex = cf.get("zhenai", "sex")
+    city_code = cf.get("zhenai", "cityCode")
+    max_num = cf.get("zhenai", "maxNum")
+    begin_age = cf.get("zhenai", "beginAge")
+    end_age = cf.get("zhenai", "endAge")
+
+    pool = ThreadPool(1)
+    get_user_list(sex, begin_age, end_age, "10102000", max_num)
