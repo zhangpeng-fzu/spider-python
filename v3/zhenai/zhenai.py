@@ -1,4 +1,4 @@
-# -*-coding:utf-8-*-
+# _*_coding:utf-8_*_
 
 import configparser
 import csv
@@ -22,7 +22,7 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'admin',
+    'password': 'admin',  # 数据库密码
     'db': 'zhenai',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -52,7 +52,7 @@ city_code_map = {}
 
 
 # 通过关键词获取公司列表信息
-def get_user_list(sex, begin_age, end_age, province, city, max_num):
+def get_user_list(sex, begin_age, end_age, city_code, province, city, max_num):
     page = 1
     while True:
 
@@ -119,8 +119,9 @@ def get_user_info_by_id(user):
     try:
         with connection.cursor() as cursor:
             # 执行sql语句，插入记录
-            sql = 'INSERT INTO user_info VALUES (%s, %s, %s, %s, %s, %s, %s,%s)'
-            cursor.execute(sql, (user_id, nick_name, age, photo_path, sex, introduce, str(ablum), city_code))
+            sql = "INSERT INTO user_info VALUES (%s, '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+                user_id, nick_name, age, photo_path, sex, introduce, str(ablum), city_code)
+            cursor.execute(sql)
             connection.commit()
     except Exception as e:
         print(e)
@@ -236,4 +237,4 @@ if __name__ == '__main__':
         sys.exit()
 
     pool = ThreadPool(1)
-    get_user_list(sex, begin_age, end_age, province, city, max_num)
+    get_user_list(sex, begin_age, end_age, city_code, province, city, max_num)

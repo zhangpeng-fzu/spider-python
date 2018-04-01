@@ -1,0 +1,12 @@
+
+准备步骤
+	python版本：python 3
+	mysql版本：mysql 5.7及以上
+	mysql数据库名：sina_news
+
+	1. 设置数据库密码：打开news.py,设置账号和密码
+	2. 导入news.sql
+
+启动步骤
+	1.启动get_news.py，获取用户ID
+
