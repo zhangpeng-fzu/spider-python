@@ -31,7 +31,8 @@ head = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36",
     "Upgrade-Insecure-Requests": "1",
     # 操作cookie
-    "Cookie": '__permanent_id=20180401194257529455615680812733633; ddscreen=2; __ddc_15d_f=1522583046%7C!%7C_utm_brand_id%3D11106; __visit_id=20180401194405703384969867965543673; __out_refer=1522583046%7C!%7Cwww.baidu.com; permanent_key=201804011944042530227214362e7297; login_dang_code=20180401194436455509547177c0e385; USERNUM=2XtyLdy0HlE0rThuWF70qw==; login.dangdang.com=.AYH=&.ASPXAUTH=ec2QipHzLmutsuG7vQAwYEM1M7OMT7if; dangdang.com=email=MTAyNTcxMTk5NUBxcS5jb20=&nickname=x+C0uti80sC+ybbpwuQ=&display_id=7275288508254&customerid=a40RoSMU/jAag674CAAzfw==&viptype=58OG3nW+5no=&show_name=186%2A%2A%2A%2A4857; ddoy=email=1025711995%40qq.com&nickname=%C7%E0%B4%BA%D8%BC%D2%C0%BE%C9%B6%E9%C2%E4&agree_date=1&validatedflag=0&uname=18606994857&utype=1&.ALFG=on&.ALTM=1522583086; sessionID=pc_466c2da86eb2b470b36a560753d0ff58a82eac8f27009054f2949ed029f4fdbd; __dd_token_id=20180401194446469713101869786264; LOGIN_TIME=1522583091553; __ddc_1d=1522583092%7C!%7C_utm_brand_id%3D11106; __ddc_24h=1522583092%7C!%7C_utm_brand_id%3D11106; __ddc_15d=1522583092%7C!%7C_utm_brand_id%3D11106; UM_distinctid=16281067b9410cb-05b48e974659e5-33627805-13c680-16281067b95749; from=488-164325581-0; order_follow_source=P-488-1643%7C%231%7C%23222.186.160.115%252Fdangdang.html%7C%230%7C%23vLV4z340mtyd-%7C-; pos_9_end=1522583116899; pos_0_end=1522583117088; ad_ids=2592278%2C2592277%7C%231%2C1; cart_id=4000000001213959275; pos_0_start=1522583137531; cart_items_count=3; deal_token=1075252e12695e48f13b81aa4e2d354c07a6c43721bb55a9728e2d6aad71497c8e06ff0e5acecb5fd4; NTKF_T2D_CLIENTID=guest51ECC8EE-0A24-23BD-D1BD-81071C79A9E5; nTalk_CACHE_DATA={uid:dd_1000_ISME9754_121395927,tid:1522583149688133}; dest_area=country_id%3D9000%26province_id%3D135%26city_id%3D2101%26district_id%3D1350103%26town_id%3D135010308; __rpm=...1522583147022%7C...1522583258544; __trace_id=20180401194748148118777570693619382; _jzqco=%7C%7C%7C%7C%7C1.586552655.1522583045972.1522583261193.1522583268202.1522583261193.1522583268202.0.0.0.6.6'}
+    "Cookie": 'deal_token=19a59f27b23e5808206e04ad6b5252495eae2bdaab03c0aea688c94ac592ad57bee738ea216b69a213; __permanent_id=20180401225745665259983480095179524; from=419-912065%7C00D060245b72bf88dc4d; order_follow_source=P-419-9120%7C%231%7C%23p.gouwubang.com%252Fl%253Fl%253Dclsnkqu%2521gz6dkz446wbqnwvyrwwopn4vntpspnm2p7ptyq4dumbqg5a%25216ybwnsubpkzsyqb5rwwoptst%7C%230%7C%23k0IYX09vqUD0-%7C-; ddscreen=2; dest_area=country_id%3D9000%26province_id%3D111%26city_id%20%3D0%26district_id%3D0%26town_id%3D0; __ddc_15d_f=1522594653%7C!%7C_ddclickunion%3D419-912065%257C00D060245b72bf88dc4d; permanent_key=20180401225754955479233526b18c6a; USERNUM=K4mtLKTcoh9ysJnelMzLRw==; login.dangdang.com=.AYH=&.ASPXAUTH=xVpdBxoFnXNnE4rXKk+TQxoY0Wu8GVDB6z/39VgixjLLH0dHKeuVxA==; dangdang.com=email=MTMxNDI3NTU4NDAxNTA5NEBkZG1vYmlscGhvbmVfX3VzZXIuY29t&nickname=&display_id=2883729859510&customerid=qGzk9XdcZ59HLDnty65wIQ==&viptype=Dpx2Hx+2cqw=&show_name=131%2A%2A%2A%2A5840; ddoy=email=1314275584015094%40ddmobilphone__user.com&nickname=&agree_date=1&validatedflag=0&uname=13142755840&utype=1&.ALFG=on&.ALTM=1522594693; sessionID=pc_cbdccdd2ba19c56446fad7b8f458823dad1c8bb60ddcc8ff092f4c8ced6a11ee; __dd_token_id=20180401225813839652240377fab5cd; __ddc_1d=1522594678%7C!%7C_ddclickunion%3D419-912065%257C00D060245b72bf88dc4d; __ddc_24h=1522594678%7C!%7C_ddclickunion%3D419-912065%257C00D060245b72bf88dc4d; __ddc_15d=1522594678%7C!%7C_ddclickunion%3D419-912065%257C00D060245b72bf88dc4d; __rpm=login_page.login_password_div..1522594670631%7Cmix_317715...1522594681023; LOGIN_TIME=1522594682423; _jzqco=%7C%7C%7C%7C%7C1.2014261426.1522594682698.1522594716825.1522594915333.1522594716825.1522594915333.0.0.0.3.3'
+}
 
 
 def get_book_info(book_shop_url, product_id, category_path):
@@ -40,23 +41,26 @@ def get_book_info(book_shop_url, product_id, category_path):
     if r.status_code != 200:
         print("获取图书数据异常，跳过!code=%s,url=%s", r.status_code, book_shop_url)
     else:
-        response_html = str(r.content.decode("gbk"))
-        results = re.findall(r"作者.*?出版社", response_html, re.I | re.S | re.M)
-        if len(results) > 0:
-            author = results[0].replace("作者：", "").replace("，出版社：", "")
+        try:
+            response_html = str(r.content.decode("gbk"))
+            results = re.findall(r"作者.*?出版社", response_html, re.I | re.S | re.M)
+            if len(results) > 0:
+                author = results[0].replace("作者：", "").replace("，出版社：", "")
+        except Exception as e:
+            author = ""
 
     introduce = ""
-    introduce_url = "http://product.dangdang.com/index.php?r=callback/detail&productId=%s&templateType=publish&describeMap=&shopId=0&categoryPath=%s" % (
-        product_id, category_path)
-    r = requests.get(introduce_url, headers=head)
-    if r.status_code != 200:
-        print("获取图书简介异常，跳过!code=%s,url=%s", r.status_code, introduce_url)
-    else:
-        response_json = r.json()
-        html = response_json["data"]["html"]
-        results = re.findall(r"content-show.*?content-show-all", html, re.I | re.S | re.M)
-        if len(results) > 0:
-            introduce = results[0].replace("content-show\">", "").replace("</span><span id=\"content-show-all", "")
+    # introduce_url = "http://product.dangdang.com/index.php?r=callback/detail&productId=%s&templateType=publish&describeMap=&shopId=0&categoryPath=%s" % (
+    #     product_id, category_path)
+    # r = requests.get(introduce_url, headers=head)
+    # if r.status_code != 200:
+    #     print("获取图书简介异常，跳过!code=%s,url=%s", r.status_code, introduce_url)
+    # else:
+    #     response_json = r.json()
+    #     html = response_json["data"]["html"]
+    #     results = re.findall(r"content-show.*?content-show-all", html, re.I | re.S | re.M)
+    #     if len(results) > 0:
+    #         introduce = results[0].replace("content-show\">", "").replace("</span><span id=\"content-show-all", "")
 
     book_data = {}
     book_data["author"] = author
@@ -64,7 +68,7 @@ def get_book_info(book_shop_url, product_id, category_path):
     return book_data
 
 
-def getOrder():
+def get_order():
     print("正在获取订单信息")
 
     url = "http://myhome.dangdang.com/myOrder/list?searchType=1&statusCondition=0&timeCondition=0&page_current=1"
@@ -72,7 +76,12 @@ def getOrder():
     if r.status_code != 200:
         print("获取列表异常，终止爬虫!code=%s", r.status_code)
         return
-    response_html = str(r.content.decode("gbk"))
+
+    try:
+        response_html = str(r.content.decode("gbk"))
+    except Exception as e:
+        print("解析列表异常，终止爬虫!")
+        return
 
     order_str = ""
     results = re.findall(r"{\"orderList.*?pageinfo", response_html, re.I | re.S | re.M)
@@ -100,7 +109,11 @@ def getOrder():
         order_id = order["order"]["orderId"]
         buy_time = order["order"]["orderCreationDate"]
 
-        for book in order["products"]:
+        book_list = order["products"]
+        print("===>该订单一共有%s本图书" % len(book_list))
+        for k in range(len(book_list)):
+            book = book_list[k]
+            print("===>正在获取第%s本图书的信息" % (k + 1))
             book_name = book["productName"]
             book_price = book["salePrice"]
             book_url = book["productImg"]
@@ -125,4 +138,4 @@ def getOrder():
 
 
 if __name__ == '__main__':
-    getOrder()
+    get_order()
