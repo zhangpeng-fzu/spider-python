@@ -11,7 +11,7 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'admin',  # 数据库密码
+    'password': 'root',  # 数据库密码
     'db': 'dangdang',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -42,29 +42,31 @@ def get_book_info(book_shop_url, product_id, category_path):
         print("获取图书数据异常，跳过!code=%s,url=%s", r.status_code, book_shop_url)
     else:
         try:
-            response_html = str(r.content.decode("gbk"))
+            response_html = str(r.content.decode("gb18030", errors='ignore'))
             results = re.findall(r"作者.*?出版社", response_html, re.I | re.S | re.M)
             if len(results) > 0:
-                author = results[0].replace("作者：", "").replace("，出版社：", "")
+                author = results[0].replace("作者：", "").replace("，出版社", "").replace(" 著", "")
         except Exception as e:
+            print(e)
             author = ""
 
     introduce = ""
-    # introduce_url = "http://product.dangdang.com/index.php?r=callback/detail&productId=%s&templateType=publish&describeMap=&shopId=0&categoryPath=%s" % (
-    #     product_id, category_path)
-    # r = requests.get(introduce_url, headers=head)
-    # if r.status_code != 200:
-    #     print("获取图书简介异常，跳过!code=%s,url=%s", r.status_code, introduce_url)
-    # else:
-    #     response_json = r.json()
-    #     html = response_json["data"]["html"]
-    #     results = re.findall(r"content-show.*?content-show-all", html, re.I | re.S | re.M)
-    #     if len(results) > 0:
-    #         introduce = results[0].replace("content-show\">", "").replace("</span><span id=\"content-show-all", "")
+    introduce_url = "http://product.dangdang.com/index.php?r=callback/detail&productId=%s&templateType=publish&describeMap=&shopId=0&categoryPath=%s" % (
+        product_id, category_path)
+    r = requests.get(introduce_url, headers=head)
+    if r.status_code != 200:
+        print("获取图书简介异常，跳过!code=%s,url=%s", r.status_code, introduce_url)
+    else:
+        response_json = r.json()
+        html = response_json["data"]["html"]
+        results = re.findall(r"内容简介.*?作者简介", html, re.I | re.S | re.M)
+        if len(results) > 0:
+            introduce = results[0].replace("内容简介", "").replace("作者简介", "").replace(
+                "</span></div><div class=\"descrip\">", "") \
+                .replace("<span id=\"content-all\">", "").replace("<span id=\"content-show\">", "").replace(
+                "<div id=\"authorIntroduction\" class=\"section\"><div class=\"title\"><span>", "")
 
-    book_data = {}
-    book_data["author"] = author
-    book_data["introduce"] = introduce
+    book_data = {"author": author, "introduce": introduce}
     return book_data
 
 
