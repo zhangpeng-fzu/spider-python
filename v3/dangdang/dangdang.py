@@ -2,16 +2,18 @@
 
 import json
 import re
+import time
 
 import pymysql
 import requests
+import xlwt
 
 # 数据库配置
 config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'root',  # 数据库密码
+    'password': 'admin',  # 数据库密码
     'db': 'dangdang',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -64,7 +66,9 @@ def get_book_info(book_shop_url, product_id, category_path):
             introduce = results[0].replace("内容简介", "").replace("作者简介", "").replace(
                 "</span></div><div class=\"descrip\">", "") \
                 .replace("<span id=\"content-all\">", "").replace("<span id=\"content-show\">", "").replace(
-                "<div id=\"authorIntroduction\" class=\"section\"><div class=\"title\"><span>", "")
+                "<div id=\"authorIntroduction\" class=\"section\"><div class=\"title\"><span>", "").replace("</span>",
+                                                                                                            "").replace(
+                "&nbsp;", "")
 
     book_data = {"author": author, "introduce": introduce}
     return book_data
@@ -72,18 +76,18 @@ def get_book_info(book_shop_url, product_id, category_path):
 
 def get_order():
     print("正在获取订单信息")
-
+    record_list = []
     url = "http://myhome.dangdang.com/myOrder/list?searchType=1&statusCondition=0&timeCondition=0&page_current=1"
     r = requests.get(url, headers=head)
     if r.status_code != 200:
         print("获取列表异常，终止爬虫!code=%s", r.status_code)
-        return
+        return record_list
 
     try:
         response_html = str(r.content.decode("gbk"))
     except Exception as e:
         print("解析列表异常，终止爬虫!")
-        return
+        return record_list
 
     order_str = ""
     results = re.findall(r"{\"orderList.*?pageinfo", response_html, re.I | re.S | re.M)
@@ -92,7 +96,7 @@ def get_order():
 
     if order_str is None or len(order_str) == 0:
         print("未获取到订单列表，终止爬虫!")
-        return
+        return record_list
     order_json = json.loads(order_str)
 
     order_list = order_json["orderList"]
@@ -100,7 +104,7 @@ def get_order():
     size = len(order_list)
     if size == 0:
         print("未找到订单信息，结束爬虫")
-        return
+        return record_list
 
     print("一共获取到%s条订单信息" % size)
 
@@ -114,6 +118,7 @@ def get_order():
         book_list = order["products"]
         print("===>该订单一共有%s本图书" % len(book_list))
         for k in range(len(book_list)):
+            record = []
             book = book_list[k]
             print("===>正在获取第%s本图书的信息" % (k + 1))
             book_name = book["productName"]
@@ -128,16 +133,42 @@ def get_order():
             if book_other_data is not None:
                 book_author = book_other_data["author"]
                 book_introduce = book_other_data["introduce"]
-            try:
-                with connection.cursor() as cursor:
-                    sql = 'INSERT INTO orders(BOOK_NAME,BOOK_AUTHOR,BOOK_PRICE,BOOK_INTRODUCE,BOOK_URL,BUY_TIME,ORDER_ID) VALUES (%s,%s,%s,%s,%s,%s,%s)'
-                    cursor.execute(sql,
-                                   (book_name, book_author, book_price, book_introduce, book_url, buy_time, order_id))
-                connection.commit()
-            except Exception as e:
-                print("数据库写入失败", e)
+            record.append(book_name)
+            record.append(book_author)
+            record.append(book_price)
+            record.append(book_introduce)
+            record.append(book_url)
+            record.append(buy_time)
+            record.append(order_id)
+
+            record_list.append(record)
+            # try:
+            #     with connection.cursor() as cursor:
+            #         sql = 'INSERT INTO orders(BOOK_NAME,BOOK_AUTHOR,BOOK_PRICE,BOOK_INTRODUCE,BOOK_URL,BUY_TIME,ORDER_ID) VALUES (%s,%s,%s,%s,%s,%s,%s)'
+            #         cursor.execute(sql,
+            #                        (book_name, book_author, book_price, book_introduce, book_url, buy_time, order_id))
+            #     connection.commit()
+            # except Exception as e:
+            #     print("数据库写入失败", e)
     print("获取订单信息完成")
+    return record_list
 
 
 if __name__ == '__main__':
-    get_order()
+    wb = xlwt.Workbook()
+    sheet = wb.add_sheet("订单", cell_overwrite_ok=True)
+
+    sheet_header = ["书名", "作者", "价格", "简介", "图片链接", "购买时间", "订单ID"]
+    for i in range(len(sheet_header)):
+        sheet.write(1, i, sheet_header[i])
+
+    record_list = get_order()
+
+    print("开始写入表格")
+    row = 2
+    for record in record_list:
+        for i in range(len(sheet_header)):
+            sheet.write(row, i, record[i])
+        row = row + 1
+    wb.save(str(int(time.time())) + ".xls")
+    print("数据写入表格完成")
