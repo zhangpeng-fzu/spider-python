@@ -45,13 +45,14 @@ def get_book_info(book_shop_url, product_id, category_path):
     else:
         try:
             response_html = str(r.content.decode("gb18030", errors='ignore'))
-            results = re.findall(r"作者.*?出版社", response_html, re.I | re.S | re.M)
+            results = re.findall(r"作者:.*?出版社", response_html, re.I | re.S | re.M)
             if len(results) > 0:
-                author = results[0].replace("作者：", "").replace("，出版社", "").replace(" 著", "")
+                author = results[0].replace("作者:", "").replace("，出版社", "").replace(" 著", "")
+            if "href" in author:
+                author = re.sub(r"<a.*?dd_name=\"作者\">", "", author).split("</a>")[0]
         except Exception as e:
             print(e)
             author = ""
-
     introduce = ""
     introduce_url = "http://product.dangdang.com/index.php?r=callback/detail&productId=%s&templateType=publish&describeMap=&shopId=0&categoryPath=%s" % (
         product_id, category_path)
@@ -68,7 +69,8 @@ def get_book_info(book_shop_url, product_id, category_path):
                 .replace("<span id=\"content-all\">", "").replace("<span id=\"content-show\">", "").replace(
                 "<div id=\"authorIntroduction\" class=\"section\"><div class=\"title\"><span>", "").replace("</span>",
                                                                                                             "").replace(
-                "&nbsp;", "")
+                "&nbsp;", "").replace("<p>", "").replace("</p>", "").replace("</div>", "").replace("rdquo;",
+                                                                                                   "").replace("<br/>")
 
     book_data = {"author": author, "introduce": introduce}
     return book_data
