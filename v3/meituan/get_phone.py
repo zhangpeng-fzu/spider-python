@@ -4,7 +4,6 @@ import json
 import random
 import re
 import string
-import time
 
 import requests
 from threadpool import *
@@ -65,10 +64,10 @@ def get_phone_by_Id(shop_id):
             return
         if "/" in phone:
             phone_arr = phone.split("/")
-            if len(phone_arr[0]) == 11 and "-" not in phone_arr[0]:
+            if len(phone_arr[0]) == 11 and "-" not in phone_arr[0] and phone_arr[0] not in old_phone_list:
                 new_phone_list.append(phone_arr[0])
                 print("获取新号码【%s】" % phone_arr[0])
-            if len(phone_arr[1]) == 11 and "-" not in phone_arr[1]:
+            if len(phone_arr[1]) == 11 and "-" not in phone_arr[1] and phone_arr[1] not in old_phone_list:
                 new_phone_list.append(phone_arr[1])
                 print("获取新号码【%s】" % phone_arr[1])
         else:
@@ -145,8 +144,6 @@ def get_phone_list():
             else:
                 print("获取列表异常，终止爬虫!")
                 is_stop = True
-        finally:
-            time.sleep(0.5)
     return new_phone_list
 
 
@@ -160,6 +157,8 @@ if __name__ == '__main__':
     # for city in cities:
     for i in string.ascii_lowercase:
         for j in string.ascii_lowercase:
+            if i == "a" or i == "b" or i == "c" or i == "d":
+                continue
             city = i + j
             print("city=" + city)
 
