@@ -66,11 +66,13 @@ def get_hotel_info(code, hotel_id):
         open_time = ""
         for item in hotel_data["items"]:
             if "price" in item:
-                price = item["name"] + " " + item["price"]["net"]
+                price = price + item["name"] + " " + item["price"]["net"]
+                if "fee" in item["price"]:
+                    price = price + "+" + item["price"]["fee"]
                 if "free" in item["price"]:
                     price = price + "+" + item["price"]["free"]
             price = price + "  "
-            open_time = item["name"] + " " + item["opentime"] + "  "
+            open_time = open_time + item["name"] + " " + item["opentime"] + "  "
         notify = ""
         if "tip" in hotel_info:
             notify = hotel_info["tip"]
@@ -152,7 +154,8 @@ def write_to_excel(hotel_list, code):
 
 
 if __name__ == '__main__':
-    code = "cmb-buffet"
-    hotel_list = get_hotel_list(code)
-    if hotel_list is not None:
-        write_to_excel(hotel_list, code)
+    code_list = ["cmb-buffet", "cmb-buffet-788"]
+    for code in code_list:
+        hotel_list = get_hotel_list(code)
+        if hotel_list is not None:
+            write_to_excel(hotel_list, code)
