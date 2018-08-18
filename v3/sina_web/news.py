@@ -22,7 +22,6 @@ def spider(flag):
         deleteAll()
     # 分页获取列表
     while True and not is_stop and not config.isStop:
-        print("正在抓取第%s页的新闻" % page)
         url = "http://api.roll.news.sina.com.cn/zt_list?channel=news&cat_1=shxw&cat_2==zqsk||=qwys||=shwx||=fz-shyf&level==1||=2&show_ext=1&show_all=1&show_num=22&tag=1&format=json&page=%s&callback=newsloadercallback&_=1522463353503" % page
         try:
             # 发起请求,得到响应结果
@@ -66,10 +65,11 @@ def spider(flag):
                             news_id, title, source, link, keywords, create_time))
                 except Exception as e:
                     print("数据库写入失败,停止抓取", e)
-                    is_stop = True
-                    break
-
-            print("抓取第%s页的新闻完成" % page)
+                    if str(flag) == "0":
+                        is_stop = True
+                        break
+            if page % 10 == 0:
+                print("抓取第%s页的新闻完成" % page)
             retry_times = 0
             page = page + 1
         except Exception as e:
@@ -83,6 +83,7 @@ def spider(flag):
                 is_stop = True
         finally:
             time.sleep(0.2)
+    print("获取数据结束")
 
 
 def get_list():

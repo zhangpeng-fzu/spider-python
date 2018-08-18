@@ -24,6 +24,7 @@ class Spider:
         flag = web.input()["flag"]
         if flag == "3":
             config.isStop = True
+            print("已成功停止获取数据")
         else:
             config.isStop = False
             t = Thread(target=news.spider, args=(flag,))

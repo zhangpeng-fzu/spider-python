@@ -29,7 +29,7 @@
     <table id="newsList" class="display" style="width:100%">
         <thead>
         <tr>
-            <th>编号</th>
+            <th style="width: 65px;text-align: center">编号</th>
             <th>标题</th>
             <th>来源</th>
             <th>链接</th>
@@ -85,7 +85,13 @@
             {"data": "id"},
             {"data": "title"},
             {"data": "source"},
-            {"data": "url"},
+            {
+                "data": null, "render": function (data, type, row) {
+                var url = data["url"];
+                var html = '<a title="删除" href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
+                return html;
+            }
+            },
             {"data": "keywords"},
             {"data": "createTime"},
             {
