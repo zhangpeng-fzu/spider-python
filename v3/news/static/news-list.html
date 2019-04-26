@@ -16,6 +16,16 @@
 </head>
 
 <body>
+ <div class="x-nav">
+      <span class="layui-breadcrumb">
+       <a href="index.html">首页</a>
+        <a href="">新闻管理</a>
+        <a>
+          <cite>新闻列表</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
 <div class="x-body">
     <xblock>
         <button class="layui-btn layui-btn-danger spider" onclick="spiderNews(1)"><i class="layui-icon"></i>重新抓取
@@ -31,7 +41,7 @@
         <tr>
             <th style="width: 65px;text-align: center">编号</th>
             <th>标题</th>
-            <th>来源</th>
+            <th style="width: 30px">来源</th>
             <th>链接</th>
             <th>关键词</th>
             <th>创建时间</th>
@@ -79,7 +89,7 @@
         "bProcessing": false, // 是否显示取数据时的那个等待提示
         "bServerSide": false,//这个用来指明是通过服务端来取数据
         "bPaginate": true,  //是否显示分页
-        "sAjaxSource": 'http://localhost:8080/news',//这个是请求的地址
+        "sAjaxSource": 'http://localhost:8080/news/list',//这个是请求的地址
         "order": [[5, 'desc']],
         "aoColumns": [
             {"data": "id"},
@@ -87,20 +97,20 @@
             {"data": "source"},
             {
                 "data": null, "render": function (data, type, row) {
-                var url = data["url"];
-                var html = '<a title="删除" href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
-                return html;
-            }
+                    var url = data["url"];
+                    var html = '<a title="删除" href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
+                    return html;
+                }
             },
             {"data": "keywords"},
             {"data": "createTime"},
             {
                 "data": null, "render": function (data, type, row) {
-                var newsId = data["id"];
-                var html = '<a title="删除" onclick="deleteOne(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px">删除</i></a>';
-                return html;
+                    var newsId = data["id"];
+                    var html = '<a title="删除" onclick="deleteOne(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px">删除</i></a>';
+                    return html;
 
-            }
+                }
             }
         ] //对应表格中的每一列
 
@@ -109,7 +119,7 @@
 
     function deleteOne(newsId) {
         $.ajax({
-            url: 'http://localhost:8080/news/delete/' + newsId,
+            url: 'http://localhost:8080/news/delete?newsId=' + newsId,
             type: 'get',
             dataType: 'json',
             async: false,
@@ -130,7 +140,7 @@
 
     function spiderNews(type) {
         $.ajax({
-            url: 'http://localhost:8080/spider?flag=' + type,//这个就是请求地址对应sAjaxSource
+            url: 'http://localhost:8080/news/spider?flag=' + type + "&source=sina",//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,
@@ -150,7 +160,7 @@
 
     function stop() {
         $.ajax({
-            url: 'http://localhost:8080/spider?flag=' + 3,//这个就是请求地址对应sAjaxSource
+            url: 'http://localhost:8080/news/spider?flag=' + 3 +"&source=sina",//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,

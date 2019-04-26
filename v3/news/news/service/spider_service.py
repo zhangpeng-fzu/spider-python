@@ -6,6 +6,8 @@ import time
 import requests
 from ..config import constants
 import random
+from ..service import news_service
+from model.models import News
 
 
 def request_list(url, source):
@@ -71,18 +73,10 @@ def spide_sina():
                 time_local = time.localtime(timestamp)
                 create_time = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
                 link = news["url"]
-                try:
-                    with connection.cursor() as cursor:
-                        sql = 'INSERT INTO news(ID,TITLE,SOURCE,URL,KEYWORDS,CREATE_TIME) ' \
-                              'VALUES (%s,%s,%s,%s,%s,%s)'
-                        cursor.execute(sql, (
-                            news_id, title, source, link, keywords, create_time))
-                        connection.commit()
-                except Exception as e:
-                    print("数据库写入失败,停止抓取", e)
-                    if str(flag) == "0":
-                        constants.isStop = True
-                        break
+                news_db = News(NEWS_ID=news_id, TITLE=title, AUTHOR=source, URL=link, KEYWORDS=keywords,
+                               CREATE_TIME=create_time,
+                               SOURCE="新浪")
+                news_db.save()
             if page % 10 == 0:
                 print("抓取第%s页的新闻完成" % page)
             retry_times = 0
@@ -103,7 +97,7 @@ def spide_sina():
 
 def spider(flag, source):
     if str(flag) == "1":
-        deleteAll()
+        news_service.deleteAll()
 
     if source == 'sina':
         spide_sina()
@@ -141,18 +135,10 @@ def spider_tx():
                 create_time = news["publish_time"]
 
                 link = news["url"]
-                try:
-                    with connection.cursor() as cursor:
-                        sql = 'INSERT INTO news(ID,TITLE,SOURCE,URL,KEYWORDS,CREATE_TIME) ' \
-                              'VALUES (%s,%s,%s,%s,%s,%s)'
-                        cursor.execute(sql, (
-                            news_id, title, source, link, keywords, create_time))
-                        connection.commit()
-                except Exception as e:
-                    print("数据库写入失败,停止抓取", e)
-                    if str(flag) == "0":
-                        constants.isStop = True
-                        break
+                news_db = News(NEWS_ID=news_id, TITLE=title, AUTHOR=source, URL=link, KEYWORDS=keywords,
+                               CREATE_TIME=create_time,
+                               SOURCE="腾讯")
+                news_db.save()
             if page % 10 == 0:
                 print("抓取第%s页的新闻完成" % page)
             retry_times = 0
@@ -187,7 +173,8 @@ def spider_netease():
                 constants.isStop = True
                 break
 
-            response_content = response.decode('gbk').replace("\n", "").replace("data_callback(", "").replace(")", "").strip()
+            response_content = response.decode('gbk').replace("\n", "").replace("data_callback(", "").replace(")",
+                                                                                                              "").strip()
             response_list = json.loads(response_content)
             if len(response_list) == 0:
                 print("数据爬取完成，结束爬虫")
@@ -206,18 +193,10 @@ def spider_netease():
                 create_time = news["time"]
 
                 link = news["tlink"]
-                try:
-                    with connection.cursor() as cursor:
-                        sql = 'INSERT INTO news(ID,TITLE,SOURCE,URL,KEYWORDS,CREATE_TIME) ' \
-                              'VALUES (%s,%s,%s,%s,%s,%s)'
-                        cursor.execute(sql, (
-                            news_id, title, source, link, keywords, create_time))
-                        connection.commit()
-                except Exception as e:
-                    print("数据库写入失败,停止抓取", e)
-                    if str(flag) == "0":
-                        constants.isStop = True
-                        break
+                news_db = News(NEWS_ID=news_id, TITLE=title, AUTHOR=source, URL=link, KEYWORDS=keywords,
+                               CREATE_TIME=create_time,
+                               SOURCE="网易")
+                news_db.save()
             if page % 10 == 0:
                 print("抓取第%s页的新闻完成" % page)
             retry_times = 0

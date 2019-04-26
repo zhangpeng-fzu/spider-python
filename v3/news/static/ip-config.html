@@ -24,9 +24,9 @@
    <div class="x-nav">
       <span class="layui-breadcrumb">
       <a href="index.html">首页</a>
-        <a href="">新闻管理</a>
+        <a href="">安全管理</a>
         <a>
-          <cite>新闻标签</cite></a>
+          <cite>IP白名单</cite></a>
       </span>
       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
@@ -34,13 +34,14 @@
     <div class="x-body">
       <div class="layui-row">
         <form class="layui-form layui-col-md12 x-so layui-form-pane">
-          <input class="layui-input" placeholder="标签名" name="cate_name">
+          <input class="layui-input" placeholder="请输入管理员名字" name="cate_name">
+          <input class="layui-input" placeholder="请输入管理员IP" name="ip">
           <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon"></i>增加</button>
         </form>
       </div>
       <xblock>
         <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-        <span class="x-right" style="line-height:40px">共有数据：3 条</span>
+        <span class="x-right" style="line-height:40px">共有数据：2 条</span>
       </xblock>
       <table class="layui-table layui-form">
         <thead>
@@ -48,9 +49,8 @@
             <th width="20">
               <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
             </th>
-            <th width="70">ID</th>
-            <th>栏目名</th>
-            <th width="50">排序</th>
+            <th width="70">管理员</th>
+            <th>IP</th>
             <th width="50">状态</th>
             <th width="220">操作</th>
         </thead>
@@ -59,27 +59,10 @@
             <td>
               <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='2'><i class="layui-icon">&#xe605;</i></div>
             </td>
-            <td>1</td>
+            <td>本机</td>
             <td>
-              国内新闻
+              127.0.0.1
             </td>
-            <td><input type="text" class="layui-input x-sort" name="order" value="1"></td>
-            <td>
-              <input type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">
-            </td>
-            <td class="td-manage">
-              <button class="layui-btn-danger layui-btn layui-btn-xs"  onclick="member_del(this,'要删除的id')" href="javascript:;" ><i class="layui-icon">&#xe640;</i>删除</button>
-            </td>
-          </tr>
-          <tr cate-id='1' fid='0' >
-            <td>
-              <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='2'><i class="layui-icon">&#xe605;</i></div>
-            </td>
-            <td>1</td>
-            <td>
-              国外新闻
-            </td>
-            <td><input type="text" class="layui-input x-sort" name="order" value="1"></td>
             <td>
               <input type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">
             </td>
@@ -91,11 +74,10 @@
             <td>
               <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='2'><i class="layui-icon">&#xe605;</i></div>
             </td>
-            <td>1</td>
+            <td>管理员</td>
             <td>
-              社会新闻
+              172.30.81.33
             </td>
-            <td><input type="text" class="layui-input x-sort" name="order" value="1"></td>
             <td>
               <input type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">
             </td>
@@ -103,6 +85,7 @@
               <button class="layui-btn-danger layui-btn layui-btn-xs"  onclick="member_del(this,'要删除的id')" href="javascript:;" ><i class="layui-icon">&#xe640;</i>删除</button>
             </td>
           </tr>
+
         </tbody>
       </table>
     </div>
