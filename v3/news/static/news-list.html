@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>欢迎页面-X-admin2.0</title>
+    <title>新闻管理平台</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport"
@@ -16,21 +16,24 @@
 </head>
 
 <body>
- <div class="x-nav">
+<div class="x-nav">
       <span class="layui-breadcrumb">
-       <a href="index.html">首页</a>
+       <a href="javacript:void(0);">首页</a>
         <a href="">新闻管理</a>
         <a>
           <cite>新闻列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
-    </div>
+</div>
 <div class="x-body">
     <xblock>
-        <button class="layui-btn layui-btn-danger spider" onclick="spiderNews(1)"><i class="layui-icon"></i>重新抓取
+        <button class="layui-btn layui-btn-danger spider"
+                onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i class="layui-icon"></i>重新抓取
         </button>
-        <button class="layui-btn spider" onclick="spiderNews(0)"><i class="layui-icon"></i>增量抓取
+        <button class="layui-btn spider"  onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i
+                class="layui-icon"></i>增量抓取
             <button class="layui-btn spider" onclick="stop()"><i class="layui-icon"></i>停止抓取
                 <button class="layui-btn" onclick="javascript:location.replace(location.href);"><i
                         class="layui-icon">ဂ</i>刷新数据
@@ -45,7 +48,7 @@
             <th>链接</th>
             <th>关键词</th>
             <th>创建时间</th>
-            <th style="width: 30px">操作</th>
+            <th style="width: 50px">操作</th>
         </tr>
         </thead>
 
@@ -59,6 +62,7 @@
 <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
 <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="./js/xadmin.js"></script>
+<script type="text/javascript" src="./js/xadmin-2.2.js"></script>
 
 
 <script>
@@ -98,7 +102,7 @@
             {
                 "data": null, "render": function (data, type, row) {
                     var url = data["url"];
-                    var html = '<a title="删除" href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
+                    var html = '<a href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
                     return html;
                 }
             },
@@ -107,7 +111,8 @@
             {
                 "data": null, "render": function (data, type, row) {
                     var newsId = data["id"];
-                    var html = '<a title="删除" onclick="deleteOne(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px">删除</i></a>';
+                    var html = '<a title="删除" onclick=deleteOne("' + newsId + '")> <i class="layui-icon" style="font-size: 14px;cursor:pointer">删除</i></a>';
+                    var html = html + '<a title="评论" onclick="comment(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px;cursor:pointer"">评论</i></a>';
                     return html;
 
                 }
@@ -138,29 +143,11 @@
     }
 
 
-    function spiderNews(type) {
-        $.ajax({
-            url: 'http://localhost:8080/news/spider?flag=' + type + "&source=sina",//这个就是请求地址对应sAjaxSource
-            type: 'get',
-            dataType: 'json',
-            async: false,
-            success: function () {
-                layer.alert('正在获取新闻数据', function () {
-                    location.replace(location.href);
-                });
 
-            },
-            error: function (msg) {
-                layer.msg('获取新闻数据失败', function () {
-                    location.replace(location.href);
-                });
-            }
-        });
-    }
 
     function stop() {
         $.ajax({
-            url: 'http://localhost:8080/news/spider?flag=' + 3 +"&source=sina",//这个就是请求地址对应sAjaxSource
+            url: 'http://localhost:8080/news/spider?flag=' + 3 + "&source=sina",//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,
