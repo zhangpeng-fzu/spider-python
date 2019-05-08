@@ -9,7 +9,7 @@ def delete(news_id):
     news.delete()
 
 
-def deleteAll():
+def delete_all():
     News.objects.all().delete()
 
 

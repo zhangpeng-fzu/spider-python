@@ -4,7 +4,7 @@
 from model.models import User
 
 
-def findOne(account):
+def find_one(account):
     return User.objects.filter(ACCOUNT=account)
 
 

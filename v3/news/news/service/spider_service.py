@@ -43,14 +43,18 @@ def spide_sina():
 
     retry_times = 0
     page = 1
+    # 判断是否需要终止
     while not constants.isStop:
-        url = "https://feed.sina.com.cn/api/roll/get?pageid=121&lid=1356&num=20&versionNumber=1.2.4&page=%s&encode=utf-8&callback=feedCardJsonpCallback&_=1556084987465" % page
+        # 数据来源
+        url = "https://feed.sina.com.cn/api/roll/get?pageid=121&lid=1356&num=20&versionNumber=1.2.4&page=%s&encode" \
+              "=utf-8&callback=feedCardJsonpCallback&_=1556084987465" % page
         try:
+            # 请求数据列表
             response = request_list(url, "sina")
             if response is None:
                 constants.isStop = True
                 break
-
+            # 解析数据
             response_content = response.decode('utf-8').replace("try{", "").replace("}catch(e){};", "").replace(
                 "feedCardJsonpCallback(", "").replace(");", "")
             response_list = json.loads(response_content)
@@ -58,7 +62,7 @@ def spide_sina():
                 print("数据爬取完成，结束爬虫")
                 constants.isStop = True
                 break
-
+            # 分析数据
             for news in response_list["result"]["data"]:
                 news_id = str(news["oid"])
                 title = news["title"]
@@ -73,6 +77,8 @@ def spide_sina():
                 time_local = time.localtime(timestamp)
                 create_time = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
                 link = news["url"]
+
+                # 数据入库
                 news_db = News(NEWS_ID=news_id, TITLE=title, AUTHOR=source, URL=link, KEYWORDS=keywords,
                                CREATE_TIME=create_time,
                                SOURCE="新浪")
@@ -85,10 +91,10 @@ def spide_sina():
             retry_times = retry_times + 1
             if retry_times <= 3:
                 print(e)
-                print("获取列表异常，第%s次重试!code=%s" % (retry_times, r.status_code))
+                print("获取列表异常，第%s次重试!" % retry_times)
                 continue
             else:
-                print("获取列表异常，终止爬虫!code=%s", r.status_code)
+                print("获取列表异常，终止爬虫!")
                 constants.isStop = True
         finally:
             time.sleep(0.2)
@@ -97,7 +103,7 @@ def spide_sina():
 
 def spider(flag, source):
     if str(flag) == "1":
-        news_service.deleteAll()
+        news_service.delete_all()
 
     if source == 'sina':
         spide_sina()
@@ -113,7 +119,9 @@ def spider_tx():
     retry_times = 0
     page = 1
     while not constants.isStop:
-        url = "https://pacaio.match.qq.com/irs/rcd?cid=137&token=d0f13d594edfc180f5bf6b845456f3ea&id=&ext=top&page=%s&expIds=20190424008302|20190424A0BD7E|20190424A0CZL6|20190424008479|20190424A07XYG|20190424A09F72|20190421002547|20190424A09RFU|20190424A0CT9S|20190423006015&callback=__jp4" % page
+        url = "https://pacaio.match.qq.com/irs/rcd?cid=137&token=d0f13d594edfc180f5bf6b845456f3ea&id=&ext=top&page=%s" \
+              "&expIds=20190424008302|20190424A0BD7E|20190424A0CZL6|20190424008479|20190424A07XYG|20190424A09F72" \
+              "|20190421002547|20190424A09RFU|20190424A0CT9S|20190423006015&callback=__jp4" % page
         try:
             response = request_list(url, "tx")
             if response is None:
@@ -147,10 +155,10 @@ def spider_tx():
             retry_times = retry_times + 1
             if retry_times <= 3:
                 print(e)
-                print("获取列表异常，第%s次重试!code=%s" % (retry_times, r.status_code))
+                print("获取列表异常，第%s次重试!" % retry_times)
                 continue
             else:
-                print("获取列表异常，终止爬虫!code=%s", r.status_code)
+                print("获取列表异常，终止爬虫!")
                 constants.isStop = True
         finally:
             time.sleep(0.2)
@@ -185,9 +193,9 @@ def spider_netease():
                 news_id = "nt_" + str(random.choice(range(10000000)))
                 title = news["title"]
 
-                keywordsArr = news["keywords"]
+                keywords_arr = news["keywords"]
                 keywords = ""
-                for keyword in keywordsArr:
+                for keyword in keywords_arr:
                     keywords = keywords + keyword["keyname"] + ","
                 source = news["channelname"]
                 create_time = news["time"]

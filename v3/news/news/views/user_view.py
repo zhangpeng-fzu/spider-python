@@ -9,7 +9,7 @@ def login(request):
         userJson = json.loads(postBody)
         account = userJson["account"]
         password = userJson["password"]
-        userList = user_service.findOne(account)
+        userList = user_service.find_one(account)
 
         res = {"state": "true", "account": account}
 
