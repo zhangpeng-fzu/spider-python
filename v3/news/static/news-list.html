@@ -32,7 +32,7 @@
         <button class="layui-btn layui-btn-danger spider"
                 onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i class="layui-icon"></i>重新抓取
         </button>
-        <button class="layui-btn spider"  onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i
+        <button class="layui-btn spider" onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i
                 class="layui-icon"></i>增量抓取
             <button class="layui-btn spider" onclick="stop()"><i class="layui-icon"></i>停止抓取
                 <button class="layui-btn" onclick="javascript:location.replace(location.href);"><i
@@ -123,26 +123,26 @@
 
 
     function deleteOne(newsId) {
-        $.ajax({
-            url: 'http://localhost:8080/news/delete?newsId=' + newsId,
-            type: 'get',
-            dataType: 'json',
-            async: false,
-            success: function () {
-                layer.alert('删除成功', function () {
-                    location.replace(location.href);
-                });
+        layer.confirm('确认要删除吗？', function (index) {
+            $.ajax({
+                url: 'http://localhost:8080/news/delete?newsId=' + newsId,
+                type: 'get',
+                dataType: 'json',
+                async: false,
+                success: function () {
+                    layer.alert('删除成功', function () {
+                        location.replace(location.href);
+                    });
 
-            },
-            error: function (msg) {
-                layer.msg('删除失败', function () {
-                    location.replace(location.href);
-                });
-            }
-        });
+                },
+                error: function (msg) {
+                    layer.msg('删除失败', function () {
+                        location.replace(location.href);
+                    });
+                }
+            });
+        })
     }
-
-
 
 
     function stop() {

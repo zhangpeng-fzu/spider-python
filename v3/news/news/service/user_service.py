@@ -10,3 +10,9 @@ def find_one(account):
 
 def get_list():
     return User.objects.all()
+
+
+def delete(ids):
+    ids_arr = ids.split(",")
+    for wid in ids_arr:
+        User.objects.filter(id=wid).delete()

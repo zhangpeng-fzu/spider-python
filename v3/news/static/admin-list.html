@@ -24,27 +24,35 @@
 </head>
 
 <body>
- <div class="x-nav">
+<div class="x-nav">
       <span class="layui-breadcrumb">
         <a href="javacript:void(0);">首页</a>
         <a href="">管理员管理</a>
         <a>
           <cite>管理员列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
-    </div>
+</div>
 <div class="x-body">
-
-    <table id="newsList" class="display" style="width:100%">
+    <xblock>
+        <span class="x-right" style="line-height:40px">共有数据：<span id="num"></span>> 条</span>
+    </xblock>
+    <table class="layui-table layui-form">
         <thead>
         <tr>
-            <th>账号</th>
+            <th width="20">
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i
+                        class="layui-icon">&#xe605;</i></div>
+            </th>
+            <th width="70">账号</th>
             <th>角色</th>
             <th>创建时间</th>
-        </tr>
+            <th width="220">操作</th>
         </thead>
-
+        <tbody class="x-cate" id="table_content">
+        </tbody>
     </table>
 </div>
 </body>
@@ -54,43 +62,11 @@
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
 <script>
-    layui.use('laydate', function () {
-        var laydate = layui.laydate;
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#start' //指定元素
-        });
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#end' //指定元素
-        });
+    $(document).ready(function () {
+        getList();
     });
 
-    $('#newsList').dataTable({
-        "bProcessing": false, // 是否显示取数据时的那个等待提示
-        "bServerSide": false,//这个用来指明是通过服务端来取数据
-        "bPaginate": true,  //是否显示分页
-        "sAjaxSource": 'http://localhost:8080/users',//这个是请求的地址
-        "fnServerData": retrieveData, // 获取数据的处理函数
-        "aoColumns": [
-            {"data": "account"},
-            {
-                "data": null, render: function (data, type, row) {
-                if (data["role"] === "admin") {
-                    return "管理员"
-                } else {
-                    return "普通用户"
-                }
-            }
-            },
-            {"data": "createTime"}
-        ] //对应表格中的每一列
-
-    });
-
-    function retrieveData(sSource111, aoData111, fnCallback111) {
+    function getList() {
         $.ajax({
             url: 'http://localhost:8080/users',//这个就是请求地址对应sAjaxSource
 //            data : {"aoData":JSON.stringify(aoData111)},//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
@@ -98,12 +74,54 @@
             dataType: 'json',
             async: false,
             success: function (result) {
-                fnCallback111(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                let data = result.data;
+                let tableHtml = "";
+                for (let i = 0; i < data.length; i++) {
+                    let obj = data[i];
+                    tableHtml = tableHtml +
+                        '<tr cate-id=\'1\' fid=\'0\' >' +
+                        '  <td>' +
+                        '    <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id=\'' + obj.id + '\'><i class="layui-icon">&#xe605;</i></div>' +
+                        '  </td>' +
+                        '  <td>' + obj.account + '</td>' +
+                        '  <td>' + obj.role +
+                        '  </td>' +
+                        '  <td>' + obj.createTime + '</td>' +
+                        '  <td class="td-manage">' +
+                        '    <button class="layui-btn-danger layui-btn layui-btn-xs"  onclick="member_del(this,' + obj.id + ')" href="javascript:;" ><i class="layui-icon">&#xe640;</i>删除</button>' +
+                        '  </td>' +
+                        '</tr>'
+                }
+                $("#table_content").append(tableHtml);
+                $("#num").append(data.length);
             },
             error: function (msg) {
             }
         });
     }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (id) {
+            $.ajax({
+                url: 'http://localhost:8080/user/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
+                type: 'delete',
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    layer.alert('删除成功', function () {
+                        location.replace(location.href);
+                    });
+                },
+                error: function (msg) {
+                    layer.msg('删除失败', function () {
+                        location.replace(location.href);
+                    });
+                }
+            });
+        });
+    }
+
 
 </script>
 

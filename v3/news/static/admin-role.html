@@ -36,9 +36,6 @@
 <div class="x-body">
 
     <xblock>
-        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-        <button class="layui-btn" onclick="x_admin_show('添加角色','./role-add.html')"><i class="layui-icon"></i>添加
-        </button>
         <span class="x-right" style="line-height:40px">共有数据：3 条</span>
     </xblock>
     <table class="layui-table">
@@ -52,7 +49,6 @@
             <th>拥有权限规则</th>
             <th>描述</th>
             <th>状态</th>
-            <th>操作</th>
         </thead>
         <tbody>
         <tr>
@@ -65,17 +61,6 @@
             <td>具有至高无上的权利</td>
             <td class="td-status">
                 <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>
-            <td class="td-manage">
-                <a onclick="member_stop(this,'10001')" href="javascript:;" title="启用">
-                    <i class="layui-icon">&#xe601;</i>
-                </a>
-                <a title="编辑" onclick="x_admin_show('编辑','role-add.html')" href="javascript:;">
-                    <i class="layui-icon">&#xe642;</i>
-                </a>
-                <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
-                    <i class="layui-icon">&#xe640;</i>
-                </a>
-            </td>
         </tr>
         <tr>
             <td>
@@ -87,17 +72,7 @@
             <td>具有新闻管理所有模块的权利</td>
             <td class="td-status">
                 <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>
-            <td class="td-manage">
-                <a onclick="member_stop(this,'10001')" href="javascript:;" title="启用">
-                    <i class="layui-icon">&#xe601;</i>
-                </a>
-                <a title="编辑" onclick="x_admin_show('编辑','role-add.html')" href="javascript:;">
-                    <i class="layui-icon">&#xe642;</i>
-                </a>
-                <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
-                    <i class="layui-icon">&#xe640;</i>
-                </a>
-            </td>
+
         </tr>
         <tr>
             <td>
@@ -109,17 +84,7 @@
             <td>具有新闻管理部分模块的权利</td>
             <td class="td-status">
                 <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>
-            <td class="td-manage">
-                <a onclick="member_stop(this,'10001')" href="javascript:;" title="启用">
-                    <i class="layui-icon">&#xe601;</i>
-                </a>
-                <a title="编辑" onclick="x_admin_show('编辑','role-add.html')" href="javascript:;">
-                    <i class="layui-icon">&#xe642;</i>
-                </a>
-                <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
-                    <i class="layui-icon">&#xe640;</i>
-                </a>
-            </td>
+
         </tr>
         </tbody>
     </table>

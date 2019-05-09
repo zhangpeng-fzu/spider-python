@@ -18,13 +18,19 @@ from django.urls import path
 from news.views import home
 from news.views import user_view
 from news.views import news_view
+from news.views import security_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home.index),
     path('login', user_view.login),
     path('users/', user_view.user_list),
+    path('users/delete', user_view.delete),
     path('news/list', news_view.news_list),
     path('news/delete', news_view.delete),
     path('news/spider', news_view.spider),
+    path('news/label', news_view.label),
+    path('news/label/delete', news_view.deleteLabel),
+    path('security/whiteip', security_view.whiteip),
+    path('security/whiteip/delete', security_view.deleteAll)
 ]
