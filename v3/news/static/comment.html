@@ -1,0 +1,729 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>评论列表</title>
+
+    <style type="text/css">
+
+        .bigTitle h1 a {
+            font-size: 24px;
+            line-height: 32px;
+        }
+
+        a, b, body, button, dd, div, dl, dt, em, form, h1, h2, h3, h4, header, input, li, p, span, textarea, ul {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            vertical-align: baseline
+        }
+
+        body {
+            line-height: 1
+        }
+
+        h1, h2, h3 {
+            font-weight: 400
+        }
+
+        li, ul {
+            list-style: none
+        }
+
+        b {
+            font-weight: 400
+        }
+
+        textarea {
+            resize: none;
+            overflow: auto
+        }
+
+        input, textarea {
+            outline: none
+        }
+
+        a {
+            text-decoration: none
+        }
+
+        img {
+            border: 0
+        }
+
+        i {
+            font-style: normal
+        }
+
+        .red .header-number, .red .header-number:visited {
+            color: #de3b14
+        }
+
+        .red a.header-number:hover {
+            color: #c02400
+        }
+
+        .red .comment-my, .red .comment-my:visited, .red .header-protocol a:hover {
+            color: #de3b14
+        }
+
+        .red .box-commentBtn--able {
+            background-color: #de3b14
+        }
+
+        .red .box-commentBtn--able:hover {
+            background-color: #c02400
+        }
+
+        .red .reply-box-btn {
+            background-color: #de3b14
+        }
+
+        .red .reply-operate-item.operate-reply--visited, .red .reply-operate-item.operate-visited, .red .reply-operate-item:hover, .red .reply-operate.disable .reply-poke.operate-visited:hover, .red .reply-operate.disable .reply-up.operate-visited:hover {
+            color: #de3b14
+        }
+
+        .red .reply-title-mark {
+            background-color: #de3b14
+        }
+
+        .red .comment-username {
+            color: #de3b14
+        }
+
+        .red .comment-operate .comment-operate-item:hover, .red .comment-operate .operate-visited {
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon-red.f052a4ea.png);
+            color: #de3b14
+        }
+
+        .gold .comment-my, .gold .comment-my:visited, .gold .header-protocol a:hover {
+            color: #8d7a5e
+        }
+
+        .gold .box-commentBtn--able {
+            background-color: #8d7a5e
+        }
+
+        .gold .box-commentBtn--able:hover {
+            background-color: #7b6c52
+        }
+
+        .gold .reply-box-btn {
+            background-color: #8d7a5e
+        }
+
+        .gold .reply-btn:hover {
+            background-color: #7b6c52
+        }
+
+        .gold .reply-operate-item.operate-reply--visited, .gold .reply-operate-item.operate-visited, .gold .reply-operate-item:hover, .gold .reply-operate.disable .reply-poke.operate-visited:hover, .gold .reply-operate.disable .reply-up.operate-visited:hover {
+            color: #8d7a5e
+        }
+
+        .gold .reply-title-mark {
+            background-color: #8d7a5e
+        }
+
+        .gold .comment-username {
+            color: #8d7a5e
+        }
+
+        .gold .comment-operate .comment-operate-item:hover, .gold .comment-operate .operate-visited {
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon-gold.ab68c18f.png);
+            color: #8d7a5e
+        }
+
+
+        .green .comment-my, .green .comment-my:visited, .green .header-protocol a:hover {
+            color: #3a965c
+        }
+
+        .green .box-commentBtn--able {
+            background-color: #3a965c
+        }
+
+        .green .box-commentBtn--able:hover {
+            background-color: #338452
+        }
+
+        .green .reply-box-btn {
+            background-color: #3a965c
+        }
+
+        .green .reply-operate-item.operate-reply--visited, .green .reply-operate-item.operate-visited, .green .reply-operate-item:hover, .green .reply-operate.disable .reply-poke.operate-visited:hover, .green .reply-operate.disable .reply-up.operate-visited:hover {
+            color: #3a965c
+        }
+
+        .green .reply-title-mark {
+            background-color: #3a965c
+        }
+
+        .green .comment-username {
+            color: #3a965c
+        }
+
+        .green .comment-operate .comment-operate-item:hover, .green .comment-operate .operate-visited {
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon-green.ab9c4522.png);
+            color: #3a965c
+        }
+
+        body {
+            font-family: Microsoft Yahei, Helvetica, sans-serif
+        }
+
+        input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+            color: #ccc
+        }
+
+        input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+            color: #ccc
+        }
+
+        input::-moz-placeholder, textarea::-moz-placeholder {
+            color: #ccc
+        }
+
+
+        .header-protocol a, .header-protocol a:visited {
+            color: #ccc
+        }
+
+        .header-protocol a:hover {
+            color: #379be9
+        }
+
+        .comment-all span {
+            display: inline-block;
+            margin: 0 6px;
+            color: #999;
+            font-size: 14px
+        }
+
+        .comment-sort, .comment-sort span {
+            cursor: pointer
+        }
+
+        .comment-username {
+            font-weight: 600;
+            color: #379be9
+        }
+
+        .box {
+            position: relative;
+            padding-left: 0px
+        }
+
+        .box-only .common-avatar {
+            display: none
+        }
+
+        .box-only .box-avatar {
+            display: inline-block
+        }
+
+        .box-content {
+            border: 3px solid #f0f0f0;
+            position: relative
+        }
+
+        .box-textarea-block {
+            margin-left: 12px;
+            margin-top: 12px;
+            margin-bottom: 12px
+        }
+
+        .box-textarea {
+            height: 100%;
+            width: 100%;
+            display: block;
+            border: none;
+            font-size: 14px;
+            line-height: 24px;
+            color: #4b4b4b
+        }
+
+
+        .box-images-delete i {
+            display: block;
+            width: 12px;
+            height: 12px;
+            margin: 6px 0 0 6px;
+            background: url(//mat1.gtimg.com/v/comment/images/news-icon.7390f58d.png) 0 -160px no-repeat
+        }
+
+        .box-images-pic img {
+            width: 100%;
+            height: 100%
+        }
+
+        .box-info {
+            overflow: hidden;
+            padding: 14px 12px;
+            border-top: 1px solid #eee
+        }
+
+        .box-commentBtn, .box-info {
+            height: 34px;
+            line-height: 34px
+        }
+
+        .box-commentBtn {
+            float: right;
+            width: 100px;
+            color: #fff;
+            background-color: #a3a3a3;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 17px;
+            cursor: pointer
+        }
+
+        .box-commentBtn--able {
+            background-color: #379be9
+        }
+
+        .box-commentBtn--able:hover {
+            background-color: #328bd1
+        }
+
+        .box-operate {
+            float: left;
+            font-size: 14px;
+            height: 34px
+        }
+
+        .box-avatar {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 0;
+            overflow: hidden;
+            vertical-align: middle;
+            margin-right: 6px
+        }
+
+        .box-username {
+            color: #3d3d3d;
+            font-weight: 600;
+            display: inline-block
+        }
+
+        .box-operate-line {
+            display: inline-block;
+            color: #adadad;
+            margin: 0 20px
+        }
+
+        .box-logout .box-textarea-block {
+            margin-right: 110px;
+            height: 72px
+        }
+
+        .box-logout.box-content {
+            height: 84px;
+            padding-bottom: 10px
+        }
+
+        .box-login .box-textarea-block {
+            margin-right: 12px;
+            height: 104px
+        }
+
+        .comment {
+            position: relative;
+            margin-top: 40px;
+            padding: 0 0 32px 68px;
+            border-bottom: 1px solid #f0f0f0
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: #4b4b4b;
+            line-height: 24px;
+            margin-top: 10px;
+            word-wrap: break-word
+        }
+
+        .comment-user {
+            height: 32px;
+            line-height: 32px;
+            font-size: 12px
+        }
+
+        .comment-time {
+            color: #999;
+            display: inline-block;
+            margin-left: 12px
+        }
+
+        .comment-images li {
+            float: left;
+            width: 100px;
+            height: 100px;
+            margin: 12px 8px 0 0;
+            font-size: 0;
+            cursor: pointer
+        }
+
+        .comment-images img {
+            width: 100%;
+            height: 100%
+        }
+
+        .comment-operate {
+            margin-top: 18px;
+            font-size: 12px
+        }
+
+        .comment-operate-item {
+            float: left;
+            position: relative;
+            width: 72px;
+            padding-left: 16px;
+            height: 14px;
+            line-height: 14px;
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon.7390f58d.png);
+            background-repeat: no-repeat;
+            color: #adadad;
+            cursor: pointer
+        }
+
+        .comment-operate-up {
+            background-position: 0 -18px
+        }
+
+        .comment-operate-reply {
+            background-position: 0 -46px
+        }
+
+
+        .comment-operate-share:hover .share-wp {
+            display: block
+        }
+
+        .comment-operate.disable .comment-operate-poke, .comment-operate.disable .comment-operate-up {
+            cursor: auto
+        }
+
+        .disable .comment-operate-poke:hover, .disable .comment-operate-up:hover {
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon.7390f58d.png);
+            color: #adadad
+        }
+
+        .comment-operate .comment-operate-item:hover, .comment-operate .operate-visited {
+            background-image: url(//mat1.gtimg.com/v/comment/images/news-icon-blue.24fe4e8c.png);
+            color: #379be9
+        }
+
+
+        .comment:hover .comment-report {
+            display: block
+        }
+
+        .comment-short .comment-content {
+            margin-top: 2px
+        }
+
+        .reply {
+            background-color: #f7f7f7;
+            padding: 8px 16px 24px;
+            margin-top: 10px
+        }
+
+        .reply-content {
+            font-size: 14px;
+            color: #4b4b4b;
+            line-height: 24px;
+            margin-top: 10px
+        }
+
+        .reply-user {
+            color: #4b4b4b;
+            font-weight: 600
+        }
+
+        .reply-box {
+            border: 3px solid #f0f0f0;
+            position: relative;
+            margin-top: 8px;
+            height: 58px;
+            padding: 8px 93px 8px 16px;
+            background-color: #fff
+        }
+
+        .reply-box-block, .reply-box-textarea {
+            width: 100%;
+            height: 100%
+        }
+
+        .reply-box-textarea {
+            color: #4b4b4b;
+            line-height: 24px;
+            font-size: 14px
+        }
+
+        .reply-box-btn {
+            position: absolute;
+            right: -3px;
+            top: -3px;
+            z-index: 1;
+            width: 80px;
+            height: 80px;
+            background-color: #379be9;
+            font-size: 16px;
+            line-height: 80px;
+            text-align: center;
+            color: #fff;
+            cursor: pointer
+        }
+
+        .reply-operate {
+            height: 14px;
+            line-height: 14px;
+            font-size: 12px;
+            margin-top: 6px;
+            color: #adadad
+        }
+
+        .reply-operate span {
+            color: #adadad
+        }
+
+        .reply-operate-item {
+            cursor: pointer
+        }
+
+        .reply-operate-item.operate-reply--visited, .reply-operate-item.operate-visited, .reply-operate-item:hover {
+            color: #379be9
+        }
+
+        .reply-operate .reply-operate-report, .reply-operate .reply-operate-report-dot {
+            display: none
+        }
+
+        .reply-block {
+            position: relative
+        }
+
+        .reply-block:hover .reply-operate-report {
+            display: inline
+        }
+
+        .reply-block:hover .reply-operate-report-dot {
+            display: inline-block
+        }
+
+        .reply-operate.disable .reply-poke, .reply-operate.disable .reply-up {
+            cursor: auto
+        }
+
+        .reply-operate.disable .reply-poke:hover, .reply-operate.disable .reply-up:hover {
+            color: #adadad
+        }
+
+        .reply-operate.disable .reply-poke.operate-visited:hover, .reply-operate.disable .reply-up.operate-visited:hover {
+            color: #379be9
+        }
+
+        .reply-dot {
+            display: inline-block;
+            margin: 0 2px
+        }
+
+        .reply-title {
+            position: relative;
+            height: 14px;
+            margin-top: 20px;
+            padding-left: 5em
+        }
+
+        .reply-title-text {
+            position: absolute;
+            left: 0;
+            top: 1px;
+            color: #3d3d3d;
+            font-size: 12px
+        }
+
+        .reply-title-mark {
+            display: block;
+            position: absolute;
+            left: -16px;
+            top: 1px;
+            height: 12px;
+            width: 3px;
+            z-index: 1;
+            background-color: #379be9
+        }
+
+        .reply-title-line {
+            height: 100%;
+            overflow: hidden
+        }
+
+        .reply-title-line span {
+            display: block;
+            height: 0;
+            border-top: 1px solid #eee;
+            margin-top: 6px
+        }
+
+        .report-item li {
+            float: left;
+            width: 96px;
+            height: 14px;
+            line-height: 14px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding-left: 16px;
+            background: url(//mat1.gtimg.com/v/comment/images/news-icon.7390f58d.png) 0 -104px no-repeat;
+            cursor: pointer
+        }
+
+        .report-item .report-item--select {
+            background: url(//mat1.gtimg.com/v/comment/images/news-icon-blue.24fe4e8c.png) 0 -118px no-repeat
+        }
+
+
+        .report-input input {
+            display: block;
+            width: 100%;
+            height: 100%;
+            font-size: 14px
+        }
+
+        .report-btn span {
+            height: 100%;
+            display: block;
+            width: 50%;
+            float: left;
+            text-align: center;
+            cursor: pointer
+        }
+
+        .common-avatar {
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+            width: 50px;
+            height: 50px;
+            font-size: 0;
+            border-radius: 50%;
+            background: url(//mat1.gtimg.com/v/comment/images/avatar_default.9d95c455.jpg) 0 0 no-repeat;
+            overflow: hidden
+        }
+
+        .common-avatar img {
+            width: 100%;
+            height: 100%
+        }
+
+        .clearfix:after {
+            content: "";
+            display: block;
+            clear: both;
+            visibility: hidden;
+            line-height: 0;
+            height: 0;
+            font-size: 0
+        }
+
+        .picture-viewer-images i {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%
+        }
+
+        .picture-viewer-list li {
+            width: 100px;
+            height: 100px;
+            overflow: hidden;
+            font-size: 0;
+            float: left;
+            margin-right: 10px;
+            position: relative
+        }
+
+        .picture-viewer-list .picture-viewer-list--cur {
+            width: 94px;
+            height: 94px;
+            border: 3px solid #ff6428
+        }
+
+        .user-click .comment-short .common-avatar, .user-click .comment-username {
+            cursor: pointer
+        }
+
+        /*  |xGv00|a461756315d6a6923ee90864d7e3aec6 */
+        .comment-short {
+            width: 90%;
+            margin: 50px auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="comment-short" id="J_Short">
+    <div class="box" id="J_Post">
+
+        <div class="box-content box-login">
+            <div class="box-textarea-block">
+                <textarea class="box-textarea J_Textarea" id="J_Textarea" placeholder="说两句吧..."></textarea>
+            </div>
+
+            <div class="box-info">
+                <div class="box-operate">
+                    <span class="box-avatar"> <img
+                            src="//thirdqq.qlogo.cn/g?b=sdk&amp;k=cDnVW1XGYPEmYGybNepssA&amp;s=40&amp;t=1497285533"
+                            width="100%" height="100%"/> </span>
+                    <b class="box-username">管理员</b>
+                    <!--<span class="box-tab J_ChangeUser">切换用户</span>-->
+                    <!-- <span class="box-operate-line">|</span>-->
+                </div>
+                <div class="box-commentBtn box-commentBtn--able J_PostBtn" id="J_PostBtn" onclick="publish_cmt();">
+                    发布评论
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    function publish_cmt() {
+        parent.layer.alert('评论成功', function () {
+            top.location.reload();
+        });
+
+    }
+
+    function replay_show(ths) {
+        if ($(ths).parent().next().hasClass('hidden')) {
+            $(ths).parent().next().removeClass('hidden');
+            $(ths).text('收起');
+            $(ths).addClass('operate-visited')
+
+        } else {
+            $(ths).parent().next().addClass('hidden');
+            $(ths).text('回复');
+            $(ths).removeClass('operate-visited')
+        }
+
+    }
+
+    function cmt_reply(ths) {
+        alert($(ths).attr('cmt_id'));
+        console.log($(ths).prev().children('.reply-box-textarea').val())
+
+    }
+</script>
+</body>
+</html>
+</body></html>

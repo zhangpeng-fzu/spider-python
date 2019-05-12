@@ -2,6 +2,7 @@
 
 
 from model.models import User
+from model.models import Role
 
 
 def find_one(account):
@@ -9,7 +10,11 @@ def find_one(account):
 
 
 def get_list():
-    return User.objects.all()
+    users = User.objects.all()
+    for one_user in users:
+        role = Role.objects.filter(ROLE_NAME=one_user.ROLE)
+        one_user.ROLE = role[0].DESCRIPTION
+    return users
 
 
 def delete(ids):

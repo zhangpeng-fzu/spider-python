@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./css/font.css">
     <link rel="stylesheet" href="./css/xadmin.css">
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/datatables/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,7 @@
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
 <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.bootcss.com/datatables/1.10.19/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
 <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="./js/xadmin.js"></script>
@@ -66,27 +66,12 @@
 
 
 <script>
-    layui.use('laydate', function () {
-        var laydate = layui.laydate;
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#start' //指定元素
-        });
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#end' //指定元素
-        });
-    });
-
 
     $(document).ready(function () {
-        var role = $.cookie('role');
+        let role = $.cookie('role');
         if (role !== "admin") {
             $(".spider").hide()
         }
-        return;
     });
 
     $('#newsList').dataTable({
@@ -101,18 +86,17 @@
             {"data": "source"},
             {
                 "data": null, "render": function (data, type, row) {
-                    var url = data["url"];
-                    var html = '<a href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
-                    return html;
+                    let url = data["url"];
+                    return '<a href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
                 }
             },
             {"data": "keywords"},
             {"data": "createTime"},
             {
                 "data": null, "render": function (data, type, row) {
-                    var newsId = data["id"];
-                    var html = '<a title="删除" onclick=deleteOne("' + newsId + '")> <i class="layui-icon" style="font-size: 14px;cursor:pointer">删除</i></a>';
-                    var html = html + '<a title="评论" onclick="comment(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px;cursor:pointer"">评论</i></a>';
+                    let newsId = data["id"];
+                    let html = '<a title="删除" onclick=deleteOne("' + newsId + '")> <i class="layui-icon" style="font-size: 14px;cursor:pointer">删除</i></a>';
+                    html = html + '<a title="评论" onclick="xadmin.open(\'评论列表\',\'./comment.html\',600,350)"> <i class="layui-icon" style="font-size: 14px;cursor:pointer"">评论</i></a>';
                     return html;
 
                 }

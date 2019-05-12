@@ -1,6 +1,5 @@
 # _*_coding:utf-8_*_
 
-import collections
 import json
 import time
 import requests
