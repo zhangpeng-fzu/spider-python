@@ -50,7 +50,7 @@
         userData["password"] = $("#password").val();
 
         $.ajax({
-            url: 'http://localhost:8080/login',
+            url: '/login',
             type: 'post',
             dataType: 'json',
             processData: false,

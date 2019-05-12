@@ -8,7 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport"
           content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="./css/font.css">
     <link rel="stylesheet" href="./css/xadmin.css">
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -69,8 +68,10 @@
 
     $(document).ready(function () {
         let role = $.cookie('role');
-        if (role !== "admin") {
-            $(".spider").hide()
+        if (role !== "super" && role !== "admin") {
+            $(".spider").hide();
+            $("#admin_nav").hide();
+            $("#security_nav").hide();
         }
     });
 
@@ -78,7 +79,7 @@
         "bProcessing": false, // 是否显示取数据时的那个等待提示
         "bServerSide": false,//这个用来指明是通过服务端来取数据
         "bPaginate": true,  //是否显示分页
-        "sAjaxSource": 'http://localhost:8080/news/list',//这个是请求的地址
+        "sAjaxSource": '/news/list',//这个是请求的地址
         "order": [[5, 'desc']],
         "aoColumns": [
             {"data": "id"},
@@ -109,7 +110,7 @@
     function deleteOne(newsId) {
         layer.confirm('确认要删除吗？', function (index) {
             $.ajax({
-                url: 'http://localhost:8080/news/delete?newsId=' + newsId,
+                url: '/news/delete?newsId=' + newsId,
                 type: 'get',
                 dataType: 'json',
                 async: false,
@@ -128,10 +129,9 @@
         })
     }
 
-
     function stop() {
         $.ajax({
-            url: 'http://localhost:8080/news/spider?flag=' + 3 + "&source=sina",//这个就是请求地址对应sAjaxSource
+            url: '/news/spider?flag=' + 3 + "&source=sina",//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,

@@ -78,7 +78,7 @@
         var source = $("input[name='source']:checked").val();
 
         $.ajax({
-            url: 'http://localhost:8080/news/spider?flag=' + flag + "&source=" + source,//这个就是请求地址对应sAjaxSource
+            url: '/news/spider?flag=' + flag + "&source=" + source,//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,

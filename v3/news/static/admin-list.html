@@ -68,7 +68,7 @@
 
     function getList() {
         $.ajax({
-            url: 'http://localhost:8080/users',//这个就是请求地址对应sAjaxSource
+            url: '/users',//这个就是请求地址对应sAjaxSource
 //            data : {"aoData":JSON.stringify(aoData111)},//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
             type: 'get',
             dataType: 'json',
@@ -104,7 +104,7 @@
     function member_del(obj, id) {
         layer.confirm('确认要删除吗？', function (id) {
             $.ajax({
-                url: 'http://localhost:8080/user/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
+                url: '/user/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
                 type: 'delete',
                 dataType: 'json',
                 async: false,

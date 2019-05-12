@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 import json
 from ..service import user_service
+from ..service import whiteip_service
 import collections
 
 
@@ -11,8 +12,13 @@ def login(request):
         account = user_json["account"]
         password = user_json["password"]
         user_arr = user_service.find_one(account)
-
         res = {"state": "true", "account": account}
+
+        user_ip = request.META['REMOTE_ADDR']
+        if not whiteip_service.check_ip(user_ip):
+            res["state"] = "false"
+            res["msg"] = "用户IP不在白名单中"
+            return HttpResponse(json.dumps(res, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
         if len(user_arr) == 0:
             res["state"] = "false"

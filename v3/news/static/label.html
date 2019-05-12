@@ -85,7 +85,7 @@
         }
 
         $.ajax({
-            url: 'http://localhost:8080/news/label',//这个就是请求地址对应sAjaxSource
+            url: '/news/label',//这个就是请求地址对应sAjaxSource
             type: 'post',
             dataType: 'json',
             data: JSON.stringify(obj),
@@ -106,7 +106,7 @@
 
     function getList() {
         $.ajax({
-            url: 'http://localhost:8080/news/label',//这个就是请求地址对应sAjaxSource
+            url: '/news/label',//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,
@@ -146,7 +146,7 @@
     function member_del(obj, id) {
         layer.confirm('确认要删除吗？', function (id) {
             $.ajax({
-                url: 'http://localhost:8080/news/label/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
+                url: '/news/label/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
                 type: 'delete',
                 dataType: 'json',
                 async: false,
@@ -169,7 +169,7 @@
         let data = tableCheck.getData();
         layer.confirm('确认要删除吗？', function (id) {
             $.ajax({
-                url: 'http://localhost:8080/news/label/delete?ids=' + data,//这个就是请求地址对应sAjaxSource
+                url: '/news/label/delete?ids=' + data,//这个就是请求地址对应sAjaxSource
                 type: 'delete',
                 dataType: 'json',
                 async: false,

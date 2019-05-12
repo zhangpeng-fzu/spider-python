@@ -8,8 +8,8 @@ def get_list():
     return Label.objects.all()
 
 
-def save(name,description):
-    label_db = Label(NAME=name,DESCRIPTION=description)
+def save(name, description):
+    label_db = Label(NAME=name, DESCRIPTION=description)
     label_db.save()
 
 

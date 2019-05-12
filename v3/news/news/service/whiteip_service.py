@@ -13,6 +13,13 @@ def save(ip, name):
     whiteip_db.save()
 
 
+def check_ip(ip):
+    ip_list = WhiteIP.objects.filter(IP=ip)
+    if len(ip_list) > 0:
+        return True
+    return False
+
+
 def delete(ids):
     ids_arr = ids.split(",")
     for wid in ids_arr:

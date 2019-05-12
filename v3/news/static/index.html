@@ -42,7 +42,7 @@
 <div class="left-nav">
     <div id="side-nav">
         <ul id="nav">
-            <li>
+            <li id="news_nav">
                 <a href="javascript:;">
                     <i class="iconfont">&#xe723;</i>
                     <cite>新闻管理</cite>
@@ -74,7 +74,7 @@
                 </ul>
             </li>
 
-            <li>
+            <li id="admin_nav">
                 <a href="javascript:;">
                     <i class="iconfont">&#xe726;</i>
                     <cite>管理员管理</cite>
@@ -105,7 +105,7 @@
                     </li>
                 </ul>
             </li>
-             <li>
+            <li id="security_nav">
                 <a href="javascript:;">
                     <i class="iconfont">&#xe6ce;</i>
                     <cite>安全管理</cite>
@@ -164,6 +164,12 @@
             location.href = "login.html"
         } else {
             document.getElementById("currentUser").innerText = account;
+        }
+
+        let role = $.cookie('role');
+        if (role !== "super" && role !== "admin") {
+            $("#admin_nav").hide();
+            $("#security_nav").hide();
         }
     });
 
