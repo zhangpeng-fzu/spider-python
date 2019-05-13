@@ -3,7 +3,7 @@
     + mysql 5.6
     
 2. 安装django
-    `pip install Django`
+    + `pip install Django`
     
 3. 安装mysqlclient
     + [文件下载地址](https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient)
@@ -27,9 +27,9 @@
 
     ```
     + 初始化数据库结构
-      + 打开navicat客户端，连接本地数据库
-      + 导入初始化脚本news.sql
+      + 打开Navicat客户端，连接本地数据库，手动创建数据库，取名为news,编码为UTF-8
+      + 进入news/config目录，使用Navicat客户端导入初始化脚本news.sql
     
     
-5. 进入工程目录，可以看到manage.py，运行 `python3 manage.py runserver 0.0.0.0:8080` 启动工程
+5. 进入工程目录，可以看到manage.py，运行 `python3 manage.py runserver 0.0.0.0:8080` 启动工程。如果提示缺少模块，使用pip install安装即可
     
