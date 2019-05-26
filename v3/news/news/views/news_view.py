@@ -3,6 +3,7 @@ import json
 from threading import Thread
 from ..service import news_service
 from ..service import spider_service
+from ..service import label_service
 from ..config import constants
 import collections
 
@@ -45,3 +46,29 @@ def spider(request):
                             content_type="application/json,charset=utf-8", )
     response["Access-Control-Allow-Origin"] = "*"
     return response
+
+
+def label(request):
+    if request.method == 'POST':
+        post_body = str(request.body, encoding="utf8")
+        json_obj = json.loads(post_body)
+        desc = json_obj["desc"]
+        name = json_obj["name"]
+        label_service.save(name, desc)
+        return HttpResponse(json.dumps({}, ensure_ascii=False), content_type="application/json,charset=utf-8")
+    else:
+        whiteips = label_service.get_list()
+        objects_list = []
+        for WhiteIp in whiteips:
+            d = collections.OrderedDict()
+            d['id'] = WhiteIp.id
+            d['name'] = WhiteIp.NAME
+            objects_list.append(d)
+        res = {"data": objects_list}
+        return HttpResponse(json.dumps(res, ensure_ascii=False), content_type="application/json,charset=utf-8")
+
+
+def deleteLabel(request):
+    ids = request.GET["ids"]
+    label_service.delete(ids)
+    return HttpResponse(json.dumps({}, ensure_ascii=False), content_type="application/json,charset=utf-8")

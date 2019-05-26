@@ -3,16 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>新闻管理平台</title>
+    <title>信息采集系统</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport"
           content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="./css/font.css">
     <link rel="stylesheet" href="./css/xadmin.css">
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/datatables/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -32,7 +31,7 @@
         <button class="layui-btn layui-btn-danger spider"
                 onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i class="layui-icon"></i>重新抓取
         </button>
-        <button class="layui-btn spider"  onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i
+        <button class="layui-btn spider" onclick="xadmin.open('选择爬取的网站','./website-select.html?flag=1',500,320)"><i
                 class="layui-icon"></i>增量抓取
             <button class="layui-btn spider" onclick="stop()"><i class="layui-icon"></i>停止抓取
                 <button class="layui-btn" onclick="javascript:location.replace(location.href);"><i
@@ -58,7 +57,7 @@
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
 <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.bootcss.com/datatables/1.10.19/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
 <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="./js/xadmin.js"></script>
@@ -66,34 +65,21 @@
 
 
 <script>
-    layui.use('laydate', function () {
-        var laydate = layui.laydate;
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#start' //指定元素
-        });
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#end' //指定元素
-        });
-    });
-
 
     $(document).ready(function () {
-        var role = $.cookie('role');
-        if (role !== "admin") {
-            $(".spider").hide()
+        let role = $.cookie('role');
+        if (role !== "super" && role !== "admin") {
+            $(".spider").hide();
+            $("#admin_nav").hide();
+            $("#security_nav").hide();
         }
-        return;
     });
 
     $('#newsList').dataTable({
         "bProcessing": false, // 是否显示取数据时的那个等待提示
         "bServerSide": false,//这个用来指明是通过服务端来取数据
         "bPaginate": true,  //是否显示分页
-        "sAjaxSource": 'http://localhost:8080/news/list',//这个是请求的地址
+        "sAjaxSource": '/news/list',//这个是请求的地址
         "order": [[5, 'desc']],
         "aoColumns": [
             {"data": "id"},
@@ -101,18 +87,17 @@
             {"data": "source"},
             {
                 "data": null, "render": function (data, type, row) {
-                    var url = data["url"];
-                    var html = '<a href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
-                    return html;
+                    let url = data["url"];
+                    return '<a href="' + url + '" target=_blank> <i class="layui-icon" style="font-size: 14px">' + url + '</i></a>';
                 }
             },
             {"data": "keywords"},
             {"data": "createTime"},
             {
                 "data": null, "render": function (data, type, row) {
-                    var newsId = data["id"];
-                    var html = '<a title="删除" onclick=deleteOne("' + newsId + '")> <i class="layui-icon" style="font-size: 14px;cursor:pointer">删除</i></a>';
-                    var html = html + '<a title="评论" onclick="comment(' + newsId + ')"> <i class="layui-icon" style="font-size: 14px;cursor:pointer"">评论</i></a>';
+                    let newsId = data["id"];
+                    let html = '<a title="删除" onclick=deleteOne("' + newsId + '")> <i class="layui-icon" style="font-size: 14px;cursor:pointer">删除</i></a>';
+                    html = html + '<a title="评论" onclick="xadmin.open(\'评论列表\',\'./comment.html\',600,350)"> <i class="layui-icon" style="font-size: 14px;cursor:pointer"">评论</i></a>';
                     return html;
 
                 }
@@ -123,31 +108,30 @@
 
 
     function deleteOne(newsId) {
-        $.ajax({
-            url: 'http://localhost:8080/news/delete?newsId=' + newsId,
-            type: 'get',
-            dataType: 'json',
-            async: false,
-            success: function () {
-                layer.alert('删除成功', function () {
-                    location.replace(location.href);
-                });
+        layer.confirm('确认要删除吗？', function (index) {
+            $.ajax({
+                url: '/news/delete?newsId=' + newsId,
+                type: 'get',
+                dataType: 'json',
+                async: false,
+                success: function () {
+                    layer.alert('删除成功', function () {
+                        location.replace(location.href);
+                    });
 
-            },
-            error: function (msg) {
-                layer.msg('删除失败', function () {
-                    location.replace(location.href);
-                });
-            }
-        });
+                },
+                error: function (msg) {
+                    layer.msg('删除失败', function () {
+                        location.replace(location.href);
+                    });
+                }
+            });
+        })
     }
-
-
-
 
     function stop() {
         $.ajax({
-            url: 'http://localhost:8080/news/spider?flag=' + 3 + "&source=sina",//这个就是请求地址对应sAjaxSource
+            url: '/news/spider?flag=' + 3 + "&source=sina",//这个就是请求地址对应sAjaxSource
             type: 'get',
             dataType: 'json',
             async: false,
