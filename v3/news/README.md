@@ -32,4 +32,6 @@
     
     
 5. 进入工程目录，可以看到manage.py，运行 `python3 manage.py runserver 0.0.0.0:8080` 启动工程。如果提示缺少模块，使用pip install安装即可
+
+6. 打开浏览器 访问`http://localhost:8080`
     
