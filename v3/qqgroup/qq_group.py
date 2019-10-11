@@ -80,6 +80,9 @@ def show(response_content):
 
 
 def fetch():
+    if entry.get() is None or len(entry.get()) == 0:
+        tkinter.messagebox.showerror('错误', "请先输入qq群号码")
+        return
     show(SessionDriver().get_html(entry.get()))
 
 
