@@ -1,0 +1,7 @@
+{
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "yapf",
+    "python.pythonPath": "/usr/local/bin/python3",
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 3000
+}
