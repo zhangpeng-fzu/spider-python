@@ -57,7 +57,7 @@ def write_to_excel(filename, company_infos):
     ws = w.add_sheet("sheet1")
     # 写入表头
     excel_header = ["positionId", "companyFullName", "companyLabelList", "district", "education",
-                    "firstType", "formatCreateTime", "positionName", "salary", "workYear"]
+                    "firstType", "formatCreateTime", "positionName", "th_salary", "workYear"]
     for i in range(len(excel_header)):
         ws.write(0, i, excel_header[i])
 

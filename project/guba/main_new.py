@@ -139,7 +139,7 @@ def is_seven_day(start, end):
     end_date = datetime.strptime(end, '%Y-%m-%d')
 
     offset = (end_date - start_date).days
-    return 0 <= offset <= 7
+    return 0 < offset <= 7
 
 
 # 判断是否超过上市时间
@@ -150,7 +150,7 @@ def older_ss_date(start, end):
     end_date = datetime.strptime(end, '%Y-%m-%d')
 
     offset = (start_date - end_date).days
-    return offset > 0
+    return offset >= 0
 
 
 # 判断小于申购时间7天
