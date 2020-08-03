@@ -1,0 +1,10 @@
+获取数据步骤
+1. run zillow.py 获取zpids，写入zpids.txt
+2. run api_get.py 获取详细数据并写入excel文件
+
+优化建议
+1. 获取id和调用api流程优化，采用生产者-消费者模式持续获取
+2. 开启多线程，提升爬虫速度
+
+注意：
+1. 通过api获取数据时会存在部分zpid无法查询数据的情况，具体异常参考detail.txt

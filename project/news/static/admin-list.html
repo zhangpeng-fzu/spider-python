@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>信息采集系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/xadmin.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="javacript:void(0);">首页</a>
+        <a href="">管理员管理</a>
+        <a>
+          <cite>管理员列表</cite></a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <xblock>
+        <span class="x-right" style="line-height:40px">共有数据：<span id="num"></span>> 条</span>
+    </xblock>
+    <table class="layui-table layui-form">
+        <thead>
+        <tr>
+            <th width="20">
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i
+                        class="layui-icon">&#xe605;</i></div>
+            </th>
+            <th width="70">账号</th>
+            <th>角色</th>
+            <th>创建时间</th>
+            <th width="220">操作</th>
+        </thead>
+        <tbody class="x-cate" id="table_content">
+        </tbody>
+    </table>
+</div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        getList();
+    });
+
+    function getList() {
+        $.ajax({
+            url: '/users',//这个就是请求地址对应sAjaxSource
+//            data : {"aoData":JSON.stringify(aoData111)},//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+            type: 'get',
+            dataType: 'json',
+            async: false,
+            success: function (result) {
+                let data = result.data;
+                let tableHtml = "";
+                for (let i = 0; i < data.length; i++) {
+                    let obj = data[i];
+                    tableHtml = tableHtml +
+                        '<tr cate-id=\'1\' fid=\'0\' >' +
+                        '  <td>' +
+                        '    <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id=\'' + obj.id + '\'><i class="layui-icon">&#xe605;</i></div>' +
+                        '  </td>' +
+                        '  <td>' + obj.account + '</td>' +
+                        '  <td>' + obj.role +
+                        '  </td>' +
+                        '  <td>' + obj.createTime + '</td>' +
+                        '  <td class="td-manage">' +
+                        '    <button class="layui-btn-danger layui-btn layui-btn-xs"  onclick="member_del(this,' + obj.id + ')" href="javascript:;" ><i class="layui-icon">&#xe640;</i>删除</button>' +
+                        '  </td>' +
+                        '</tr>'
+                }
+                $("#table_content").append(tableHtml);
+                $("#num").append(data.length);
+            },
+            error: function (msg) {
+            }
+        });
+    }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (id) {
+            $.ajax({
+                url: '/user/delete?ids=' + id,//这个就是请求地址对应sAjaxSource
+                type: 'delete',
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    layer.alert('删除成功', function () {
+                        location.replace(location.href);
+                    });
+                },
+                error: function (msg) {
+                    layer.msg('删除失败', function () {
+                        location.replace(location.href);
+                    });
+                }
+            });
+        });
+    }
+
+
+</script>
+
+</body>
+
+</html>
