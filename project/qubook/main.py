@@ -3,26 +3,50 @@
 import time
 import requests
 from bs4 import BeautifulSoup
+import re
+from selenium import webdriver
+from urllib.parse import quote
 
 
-def download(book_name):
-    url = "https://down.baoshuu.com/%s.rar" % book_name
-    file_name = "book/" + book_name + ".rar"
+class SessionDriver:
 
-    header = {
-        "Cookie": "__cfduid=dabf8094d0c56b467385901670bab03cc1598437087",
-        "Host": "down.baoshuu.com",
-        "Accept": "*/*",
-        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br"
-    }
-    r = requests.get(url=url, headers=header)
+    def __init__(self):
+        self.browser = None
 
-    if r.status_code != 200:
-        return
+    def get_html(self, href):
+        self.__init_browser()
 
-    with open(file_name, "wb") as code:
-        code.write(r.content)
+        self.browser.get(href)
+        time.sleep(2)
+
+        return self.browser.page_source
+
+    def __init_browser(self):
+        """
+        初始化selenium浏览器
+        :return:
+        """
+        if self.browser is None:
+            options = webdriver.ChromeOptions()
+            self.browser = webdriver.Chrome(options=options)
+            self.browser.maximize_window()
+            time.sleep(5)
+
+    def __destroy_browser(self):
+        """
+        销毁selenium浏览器
+        :return:
+        """
+        if self.browser is not None:
+            pass
+            self.browser.quit()
+
+
+chrome_session = SessionDriver()
+
+
+def download(url):
+    chrome_session.get_html(url)
 
 
 def get_book_name(href):
@@ -35,10 +59,16 @@ def get_book_name(href):
         if r.status_code != 200:
             return
         response_text = str(r.content, "gbk")
-        soup = BeautifulSoup(response_text)
+        soup = BeautifulSoup(response_text, features='html.parser')
 
+        download_link = soup.findAll("a", text=re.compile("下载地址"))
         book_name = soup.find("h1").text
-        download(book_name)
+
+        # for li in download_link:
+        # print("正在下载%s" % book_name)
+        # download("https://www.qubook.net" + download_link[2].attrs["href"])
+        url = "https://down.baoshuu.com/%s.rar" % quote(book_name)
+        download(url)
 
     except Exception as e:
         print(e)
@@ -58,7 +88,7 @@ def get_book_list(category):
         if r.status_code != 200:
             return
         response_text = str(r.content, "gbk")
-        soup = BeautifulSoup(response_text)
+        soup = BeautifulSoup(response_text, features='html.parser')
 
         book_link_list = soup.findAll("div", class_="ll1")[0].contents[2].findAll("a", text="下载")
 
