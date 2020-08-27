@@ -17,7 +17,7 @@ class SessionDriver:
         self.__init_browser()
 
         self.browser.get(href)
-        time.sleep(2)
+        time.sleep(1)
 
         return self.browser.page_source
 
@@ -63,9 +63,9 @@ def get_book_name(href):
 
         download_link = soup.findAll("a", text=re.compile("下载地址"))
         book_name = soup.find("h1").text
+        print("正在下载【%s】" % book_name)
 
         # for li in download_link:
-        # print("正在下载%s" % book_name)
         # download("https://www.qubook.net" + download_link[2].attrs["href"])
         url = "https://down.baoshuu.com/%s.rar" % quote(book_name)
         download(url)
@@ -78,27 +78,29 @@ def get_book_name(href):
 
 # 通过获取专利授权数量
 def get_book_list(category):
-    page = 1
-    url = "https://www.qubook.net/TXT/list%s_%s.html" % (category, page)
+    page = 0
+    while True:
+        page = page + 1
+        print("正在获取第%s页数据" % page)
+        url = "https://www.qubook.net/TXT/list%s_%s.html" % (category, page)
 
-    try:
-        # 发起请求,得到响应结果
-        r = requests.get(url)
+        try:
+            # 发起请求,得到响应结果
+            r = requests.get(url)
 
-        if r.status_code != 200:
-            return
-        response_text = str(r.content, "gbk")
-        soup = BeautifulSoup(response_text, features='html.parser')
+            if r.status_code != 200:
+                break
+            response_text = str(r.content, "gbk")
+            soup = BeautifulSoup(response_text, features='html.parser')
 
-        book_link_list = soup.findAll("div", class_="ll1")[0].contents[2].findAll("a", text="下载")
+            book_link_list = soup.findAll("div", class_="ll1")[0].contents[2].findAll("a", text="下载")
 
-        for li in book_link_list:
-            get_book_name(li.attrs["href"])
+            for li in book_link_list:
+                get_book_name(li.attrs["href"])
 
-    except Exception as e:
-        print(e)
-    finally:
-        time.sleep(1)
+        except Exception as e:
+            print(e)
+            break
 
 
 if __name__ == '__main__':
