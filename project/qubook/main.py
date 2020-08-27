@@ -19,14 +19,13 @@ class SessionDriver:
         self.browser = None
 
     def get_html(self, href):
-        self.__init_browser()
+        self.init_browser()
 
         self.browser.get(href)
-        time.sleep(1)
 
         return self.browser.page_source
 
-    def __init_browser(self):
+    def init_browser(self):
         """
         初始化selenium浏览器
         :return:
@@ -37,9 +36,10 @@ class SessionDriver:
             options.add_experimental_option("prefs", prefs)
             self.browser = webdriver.Chrome(options=options)
             self.browser.maximize_window()
+            self.browser.set_page_load_timeout(5)
             time.sleep(5)
 
-    def __destroy_browser(self):
+    def destroy_browser(self):
         """
         销毁selenium浏览器
         :return:
@@ -129,6 +129,7 @@ def get_book_list(category):
         except Exception as e:
             print(e)
             break
+    chrome_session.destroy_browser()
 
 
 if __name__ == '__main__':
