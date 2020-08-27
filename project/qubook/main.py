@@ -6,6 +6,11 @@ from bs4 import BeautifulSoup
 import re
 from selenium import webdriver
 from urllib.parse import quote
+import os
+
+download_dir = "E:\\book"
+if not os.path.exists(download_dir):
+    os.mkdir(download_dir)
 
 
 class SessionDriver:
@@ -28,6 +33,8 @@ class SessionDriver:
         """
         if self.browser is None:
             options = webdriver.ChromeOptions()
+            prefs = {"download.default_directory": download_dir}
+            options.add_experimental_option("prefs", prefs)
             self.browser = webdriver.Chrome(options=options)
             self.browser.maximize_window()
             time.sleep(5)
@@ -45,11 +52,28 @@ class SessionDriver:
 chrome_session = SessionDriver()
 
 
-def download(url):
-    chrome_session.get_html(url)
+def download(book_name, download_links):
+    files_num = len(os.listdir(download_dir))
+    status = "失败"
+    for url in download_links:
+        chrome_session.get_html(url)
+        if len(os.listdir(download_dir)) > files_num:
+            status = "成功"
+            break
+    print("【%s】下载%s" % (book_name, status))
 
 
-def get_book_name(href):
+download_book_list = []
+
+
+def load_dowload_book_list():
+    files = os.listdir(download_dir)
+    for file in files:
+        if not os.path.isdir(file) and file.endswith(".rar"):
+            download_book_list.append(file)
+
+
+def get_book_download_link(href):
     url = "https://www.qubook.net%s" % href
 
     try:
@@ -61,14 +85,18 @@ def get_book_name(href):
         response_text = str(r.content, "gbk")
         soup = BeautifulSoup(response_text, features='html.parser')
 
-        download_link = soup.findAll("a", text=re.compile("下载地址"))
         book_name = soup.find("h1").text
+
+        if book_name + ".rar" in download_book_list:
+            return
+
         print("正在下载【%s】" % book_name)
 
-        # for li in download_link:
-        # download("https://www.qubook.net" + download_link[2].attrs["href"])
-        url = "https://down.baoshuu.com/%s.rar" % quote(book_name)
-        download(url)
+        download_links = ["https://down.baoshuu.com/%s.rar" % quote(book_name)]
+        for li in soup.findAll("a", text=re.compile("下载地址")):
+            download_links.append("https://www.qubook.net" + li.attrs["href"])
+
+        download(book_name, download_links)
 
     except Exception as e:
         print(e)
@@ -96,7 +124,7 @@ def get_book_list(category):
             book_link_list = soup.findAll("div", class_="ll1")[0].contents[2].findAll("a", text="下载")
 
             for li in book_link_list:
-                get_book_name(li.attrs["href"])
+                get_book_download_link(li.attrs["href"])
 
         except Exception as e:
             print(e)
@@ -104,4 +132,5 @@ def get_book_list(category):
 
 
 if __name__ == '__main__':
+    load_dowload_book_list()
     get_book_list(26)
