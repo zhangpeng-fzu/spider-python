@@ -11,7 +11,7 @@ import os
 # 下文文件目录
 download_dir = ""
 # 下载文件等待时间
-sleep_time = 20
+sleep_time = 5
 
 
 class SessionDriver:
@@ -24,9 +24,10 @@ class SessionDriver:
 
         self.browser.get(href)
 
-        return self.browser.page_source
+        return self.browser
 
     def init_browser(self):
+        global download_dir
         """
         初始化selenium浏览器
         :return:
@@ -37,7 +38,7 @@ class SessionDriver:
             options.add_experimental_option("prefs", prefs)
             self.browser = webdriver.Chrome(options=options)
             self.browser.maximize_window()
-            self.browser.set_page_load_timeout(5)
+            self.browser.set_page_load_timeout(30)
             time.sleep(5)
 
     def destroy_browser(self):
@@ -51,20 +52,6 @@ class SessionDriver:
 
 
 chrome_session = SessionDriver()
-
-
-def download(book_name, download_links):
-    files_num = len(os.listdir(download_dir))
-    status = "失败"
-    for url in download_links:
-        chrome_session.get_html(url)
-        if os.path.exists(download_dir + "/" + book_name + ".rar.crdownload"):
-            # if len(os.listdir(download_dir)) > files_num:
-            status = "成功"
-            time.sleep(sleep_time)
-            break
-    print("【%s】下载%s" % (book_name, status))
-
 
 download_book_list = []
 
@@ -81,25 +68,28 @@ def get_book_download_link(href):
 
     try:
         # 发起请求,得到响应结果
-        r = requests.get(url)
+        browser = chrome_session.get_html(url)
 
-        if r.status_code != 200:
-            return
-        response_text = str(r.content, "gbk")
-        soup = BeautifulSoup(response_text, features='html.parser')
+        soup = BeautifulSoup(browser.page_source, features='html.parser')
 
-        book_name = soup.find("h1").text
+        book_name = soup.find("h1").text.split("[")[0].strip()
 
         if book_name + ".rar" in download_book_list:
             return
 
-        print("正在下载【%s】" % book_name)
+        elements = browser.find_elements_by_tag_name("a")
 
-        download_links = ["https://down.baoshuu.com/%s.rar" % quote(book_name)]
-        for li in soup.findAll("a", text=re.compile("下载地址")):
-            download_links.append("https://www.qubook.net" + li.attrs["href"])
-
-        download(book_name, download_links)
+        status = "失败"
+        files_num = len(os.listdir(download_dir))
+        for element in elements:
+            if "下载地址" not in element.text:
+                continue
+            element.click()
+            time.sleep(5)
+            if len(os.listdir(download_dir)) > files_num:
+                time.sleep(sleep_time)
+                break
+        print("【%s】下载%s" % (book_name, status))
 
     except Exception as e:
         print(e)
@@ -140,7 +130,10 @@ def spider(download_directory, sleep, list_type, start_page):
     global download_dir
     global sleep_time
 
-    download_dir = download_directory + "/" + list_type
+    download_dir = os.path.join(download_directory , str(list_type))
+    if not os.path.exists(download_dir):
+        os.mkdir(download_dir)
+
     sleep_time = sleep
 
     if not os.path.exists(download_dir):
