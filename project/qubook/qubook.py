@@ -81,20 +81,38 @@ def get_book_download_link(href):
 
         status = "失败"
         files_num = len(os.listdir(download_dir))
+        handle = browser.current_window_handle
+        i = 0
         for element in elements:
             if "下载地址" not in element.text:
                 continue
+            i = i + 1
             element.click()
-            time.sleep(5)
+            time.sleep(3 * i)
+            handles = browser.window_handles
+            for newhandle in handles:
+                # 筛选新打开的窗口B
+                if newhandle != handle:
+                    # 切换到新打开的窗口B
+                    browser.switch_to.window(newhandle)
+                    # 关闭当前窗口B
+                    try:
+                        browser.close()
+                    except Exception as ex:
+                        print(ex)
+                    finally:
+                        # 切换回窗口A
+                        browser.switch_to_window(handles[0])
             if len(os.listdir(download_dir)) > files_num:
                 time.sleep(sleep_time)
+                status = "成功"
                 break
         print("【%s】下载%s" % (book_name, status))
 
     except Exception as e:
         print(e)
     finally:
-        time.sleep(0.1)
+        time.sleep(1)
 
 
 # 获取小说列表
