@@ -34,8 +34,10 @@ class SessionDriver:
         """
         if self.browser is None:
             options = webdriver.ChromeOptions()
-            prefs = {"download.default_directory": download_dir}
+            prefs = {"download.default_directory": download_dir,
+                     "profile.managed_default_content_settings.images": 2}
             options.add_experimental_option("prefs", prefs)
+            options.add_argument("disable-infobars")
             self.browser = webdriver.Chrome(options=options)
             self.browser.maximize_window()
             self.browser.set_page_load_timeout(30)
@@ -74,8 +76,10 @@ def get_book_download_link(href):
 
         book_name = soup.find("h1").text.split("[")[0].strip()
 
-        if book_name + ".rar" in download_book_list:
-            return
+        for name in download_book_list:
+            if book_name in name:
+                print("【%s】已下载，跳过" % book_name)
+                return
 
         elements = browser.find_elements_by_tag_name("a")
 
@@ -83,7 +87,7 @@ def get_book_download_link(href):
         files_num = len(os.listdir(download_dir))
         handle = browser.current_window_handle
         i = 0
-        for element in elements:
+        for element in reversed(elements):
             if "下载地址" not in element.text:
                 continue
             i = i + 1
@@ -111,22 +115,20 @@ def get_book_download_link(href):
 
     except Exception as e:
         print(e)
-    finally:
-        time.sleep(1)
 
 
 # 获取小说列表
-def get_book_list(category, page):
+def get_book_list(category, page, end_page, retry_times):
     if page is None:
         page = 0
-    while True:
+    while page <= end_page:
         page = page + 1
         print("正在获取第%s页数据" % page)
         url = "https://www.qubook.net/TXT/list%s_%s.html" % (category, page)
 
         try:
             # 发起请求,得到响应结果
-            r = requests.get(url)
+            r = requests.get(url, timeout=10)
 
             if r.status_code != 200:
                 break
@@ -137,18 +139,22 @@ def get_book_list(category, page):
 
             for li in book_link_list:
                 get_book_download_link(li.attrs["href"])
+            retry_times = 0
 
         except Exception as e:
             print(e)
-            break
+            retry_times = retry_times + 1
+            if retry_times >= 3:
+                continue
+            page = page - 1
     chrome_session.destroy_browser()
 
 
-def spider(download_directory, sleep, list_type, start_page):
+def spider(download_directory, sleep, list_type, start_page, end_page):
     global download_dir
     global sleep_time
 
-    download_dir = os.path.join(download_directory , str(list_type))
+    download_dir = os.path.join(download_directory, str(list_type))
     if not os.path.exists(download_dir):
         os.mkdir(download_dir)
 
@@ -158,4 +164,4 @@ def spider(download_directory, sleep, list_type, start_page):
         os.mkdir(download_dir)
 
     load_dowload_book_list()
-    get_book_list(list_type, start_page)
+    get_book_list(list_type, start_page, end_page, 0)

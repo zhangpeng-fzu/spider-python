@@ -3,4 +3,4 @@
 from qubook import spider
 
 if __name__ == '__main__':
-    spider("/Users/Downloads/book", 20, 26, 80)
+    spider("/Users/zhangpeng/Downloads/book", 5, 26, 1)
