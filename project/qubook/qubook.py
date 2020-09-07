@@ -77,7 +77,7 @@ def get_book_download_link(href):
         book_name = soup.find("h1").text.split("[")[0].strip()
 
         for name in download_book_list:
-            if book_name in name:
+            if book_name and (book_name in name):
                 print("【%s】已下载，跳过" % book_name)
                 return
 

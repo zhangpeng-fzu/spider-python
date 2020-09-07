@@ -135,7 +135,7 @@ class HigoldProducts(object):
             os.mkdir(second_level_dir)
 
         for good in category_goods:
-            save_path = os.path.join(second_level_dir, good["title"])
+            save_path = os.path.join(second_level_dir, good["title"].replace("/", "."))
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
 
