@@ -1,8 +1,8 @@
 # -*-coding:utf-8-*-
 
 import requests
-from bs4 import BeautifulSoup
 import json
+import re
 import xlwt
 import time
 import os
@@ -58,7 +58,11 @@ class HigoldProducts(object):
 
     def get_category_product(self, category_id, page, goods):
         url = self.good_list_url % (page, category_id)
-        r = requests.get(url, headers=self.headers, timeout=10)
+        try:
+            r = requests.get(url, headers=self.headers, timeout=10)
+        except Exception as e:
+            print("获取分类【%s】下的第%s页产品失败,e=%s" % (category_id, page, e))
+            return
         goods_data = r.json()["data"]
 
         for good in goods_data["list"]:
@@ -66,7 +70,7 @@ class HigoldProducts(object):
 
         total_page = int(goods_data["count"]) / 20 if int(goods_data["count"]) % 20 == 0 else int(int(
             goods_data["count"]) / 20) + 1
-        if total_page == goods_data["cpage"]:
+        if total_page <= goods_data["cpage"]:
             return
         page = page + 1
         self.get_category_product(category_id, page, goods)
@@ -126,7 +130,12 @@ class HigoldProducts(object):
         self.write_book.save(self.book_name)
 
     @staticmethod
-    def save_image(category_goods):
+    def validate_title(title):
+        re_str = r"[\/\\\:\*\?\"\<\>\|]"  # '/ \ : * ? " < > |'
+        new_title = re.sub(re_str, "-", title)  # 替换为下划线
+        return new_title
+
+    def save_image(self, category_goods):
 
         if not os.path.exists(category_goods[0]["first_level"]):
             os.mkdir(category_goods[0]["first_level"])
@@ -135,7 +144,7 @@ class HigoldProducts(object):
             os.mkdir(second_level_dir)
 
         for good in category_goods:
-            save_path = os.path.join(second_level_dir, good["title"].replace("/", "."))
+            save_path = os.path.join(second_level_dir, self.validate_title(good["title"]))
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
 
