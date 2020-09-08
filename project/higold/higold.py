@@ -7,6 +7,7 @@ import xlwt
 import time
 import os
 from bs4 import BeautifulSoup
+from threadpool import *
 
 
 class HigoldProducts(object):
@@ -20,6 +21,7 @@ class HigoldProducts(object):
             "host": "pc.higoldcloud.com",
             "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
         }
+        self.pool = ThreadPool(5)
 
         write_book = xlwt.Workbook()
         data_sheet = write_book.add_sheet('sheet1')
@@ -30,6 +32,7 @@ class HigoldProducts(object):
         self.data_sheet = data_sheet
         self.row = 0
         self.book_name = "商品数据-%s.csv" % str(int(time.time()))
+        self.download_path = ""
 
     def get_categories(self):
         r = requests.get(self.category_list_url, headers=self.headers, timeout=10)
@@ -53,8 +56,9 @@ class HigoldProducts(object):
             for category_good in category_goods:
                 category_good["first_level"] = first_level
                 category_good["second_level"] = second_level
-            self.write_excel(category_goods)
-            self.save_image(category_goods)
+            if len(category_goods) > 0:
+                self.write_excel(category_goods)
+                self.save_image(category_goods)
 
     def get_category_product(self, category_id, page, goods):
         print("正在抓取第%s页商品数据，category_id=%s" % (page, category_id))
@@ -160,31 +164,37 @@ class HigoldProducts(object):
                 if not os.path.exists(detail_image_path):
                     os.mkdir(detail_image_path)
                 if len(os.listdir(detail_image_path)) < len(content_images):
-                    for image in content_images:
-                        try:
-                            src = image.attrs["src"]
-                            blob = requests.get(src, timeout=10)
-                            with open(os.path.join(detail_image_path, os.path.basename(src.split("?")[0])),
-                                      'wb') as file:
-                                file.write(blob.content)
-                        except Exception as e:
-                            print(e)
+                    self.download_path = detail_image_path
+                    my_requests = makeRequests(self.download_image, content_images)
+                    [self.pool.putRequest(req) for req in my_requests]
+                    self.pool.wait()
 
             if len(good["resource"]) > 0:
                 main_image_path = os.path.join(save_path, "主图")
                 if not os.path.exists(main_image_path):
                     os.mkdir(main_image_path)
                 if len(os.listdir(main_image_path)) < len(good["resource"]):
-                    for resource in good["resource"]:
-                        try:
-                            blob = requests.get(resource, timeout=10)
-                            with open(os.path.join(main_image_path, os.path.basename(resource.split("?")[0])),
-                                      'wb') as file:
-                                file.write(blob.content)
-                        except Exception as e:
-                            print(e)
+                    self.download_path = main_image_path
+                    my_requests = makeRequests(self.download_image, good["resource"])
+                    [self.pool.putRequest(req) for req in my_requests]
+                    self.pool.wait()
 
             print("商品【%s】的图片已保存" % good["title"])
+
+    def download_image(self, image):
+        try:
+            if isinstance(image, str):
+                src = image
+            else:
+                src = image.attrs["src"]
+
+            blob = requests.get(src, timeout=10)
+            with open(os.path.join(self.download_path, os.path.basename(src.split("?")[0])),
+                      'wb') as file:
+                file.write(blob.content)
+
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
