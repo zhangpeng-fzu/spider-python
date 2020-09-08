@@ -57,6 +57,7 @@ class HigoldProducts(object):
             self.save_image(category_goods)
 
     def get_category_product(self, category_id, page, goods):
+        print("正在抓取第%s页商品数据，category_id=%s" % (page, category_id))
         url = self.good_list_url % (page, category_id)
         try:
             r = requests.get(url, headers=self.headers, timeout=10)
@@ -155,27 +156,29 @@ class HigoldProducts(object):
                 detail_image_path = os.path.join(save_path, "详情图")
                 if not os.path.exists(detail_image_path):
                     os.mkdir(detail_image_path)
-                for image in content_images:
-                    try:
-                        src = image.attrs["src"]
-                        blob = requests.get(src)
-                        with open(os.path.join(detail_image_path, os.path.basename(src.split("?")[0])), 'wb') as file:
-                            file.write(blob.content)
-                    except Exception as e:
-                        print(e)
+                if len(os.listdir(detail_image_path)) < len(content_images):
+                    for image in content_images:
+                        try:
+                            src = image.attrs["src"]
+                            blob = requests.get(src)
+                            with open(os.path.join(detail_image_path, os.path.basename(src.split("?")[0])), 'wb') as file:
+                                file.write(blob.content)
+                        except Exception as e:
+                            print(e)
 
             if len(good["resource"]) > 0:
                 main_image_path = os.path.join(save_path, "主图")
                 if not os.path.exists(main_image_path):
                     os.mkdir(main_image_path)
-                for resource in good["resource"]:
-                    try:
-                        blob = requests.get(resource)
-                        with open(os.path.join(main_image_path, os.path.basename(resource.split("?")[0])),
-                                  'wb') as file:
-                            file.write(blob.content)
-                    except Exception as e:
-                        print(e)
+                if len(os.listdir(main_image_path)) < len(good["resource"]):
+                    for resource in good["resource"]:
+                        try:
+                            blob = requests.get(resource)
+                            with open(os.path.join(main_image_path, os.path.basename(resource.split("?")[0])),
+                                      'wb') as file:
+                                file.write(blob.content)
+                        except Exception as e:
+                            print(e)
 
 
 if __name__ == '__main__':
