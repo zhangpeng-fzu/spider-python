@@ -77,7 +77,11 @@ class HigoldProducts(object):
         self.get_category_product(category_id, page, goods)
 
     def get_good_detail(self, good_id, goods):
-        r = requests.get(self.good_detail_url % good_id, headers=self.headers, timeout=10)
+        try:
+            r = requests.get(self.good_detail_url % good_id, headers=self.headers, timeout=10)
+        except Exception as e:
+            print("抓取商品【%s】失败，e=%s" % (good_id, e))
+            return
 
         good_detail = r.json()["data"]
 
@@ -137,7 +141,6 @@ class HigoldProducts(object):
         return new_title
 
     def save_image(self, category_goods):
-
         if not os.path.exists(category_goods[0]["first_level"]):
             os.mkdir(category_goods[0]["first_level"])
         second_level_dir = os.path.join(category_goods[0]["first_level"], category_goods[0]["second_level"])
@@ -160,8 +163,9 @@ class HigoldProducts(object):
                     for image in content_images:
                         try:
                             src = image.attrs["src"]
-                            blob = requests.get(src)
-                            with open(os.path.join(detail_image_path, os.path.basename(src.split("?")[0])), 'wb') as file:
+                            blob = requests.get(src, timeout=10)
+                            with open(os.path.join(detail_image_path, os.path.basename(src.split("?")[0])),
+                                      'wb') as file:
                                 file.write(blob.content)
                         except Exception as e:
                             print(e)
@@ -173,12 +177,14 @@ class HigoldProducts(object):
                 if len(os.listdir(main_image_path)) < len(good["resource"]):
                     for resource in good["resource"]:
                         try:
-                            blob = requests.get(resource)
+                            blob = requests.get(resource, timeout=10)
                             with open(os.path.join(main_image_path, os.path.basename(resource.split("?")[0])),
                                       'wb') as file:
                                 file.write(blob.content)
                         except Exception as e:
                             print(e)
+
+            print("商品【%s】的图片已保存" % good["title"])
 
 
 if __name__ == '__main__':
