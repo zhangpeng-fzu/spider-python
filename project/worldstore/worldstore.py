@@ -9,46 +9,54 @@ import universal_character_recognition as AICloud
 from pynput.keyboard import Key, Controller as KeyboardController
 import json
 import util
+import config
 
 # 创建一个Chrome浏览器实例
 chrome_options = Options()
 chrome_options.page_load_strategy = 'eager'
+chrome_options.add_argument(
+    "User-Agent=Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4");
+
 # chrome_options.add_argument("--incognito")  # 设置为隐私模式
 
-plugin_path = "/usr/local/bin/mcohilncbfahbmgdjkbpemcciiolgcge_2.93.0.crx"
-chrome_options.add_extension(plugin_path)
+chrome_options.add_extension(config.plugin_path)
 
 # 指定ChromeDriver的路径
-s = Service(executable_path="/usr/local/bin/chromedriver")
+s = Service(executable_path=config.executable_path)
 
 # 创建一个Chrome浏览器实例，并指定ChromeDriver的路径
 driver = webdriver.Chrome(service=s, options=chrome_options)
 
 
-def switch_wallet():
-    keyboard_c = KeyboardController()
-    with keyboard_c.pressed(Key.shift, Key.alt):
-        keyboard_c.press("o")
-
-    time.sleep(2)
-    driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-    account_element = driver.find_element(By.XPATH, '//div[contains(text(),"账户")]')
-    account_index = account_element.text.replace("账户 ", "")
-    account_element.click()
-
-    next_account_index = int(account_index) + 1
-    next_account_name = str(next_account_index)
-    if next_account_index < 10:
-        next_account_name = "0" + next_account_name
-    next_account_name = "账户 " + next_account_name
-    util.click(driver, By.XPATH, '//div[text()="' + next_account_name + '"]')
-
-
 def disconnect_wallet():
-    driver.switch_to.window(driver.window_handles[0])
+    switch_handle("leaderboard")
     driver.find_elements(By.XPATH, '//span[contains(text(),"...")]')[0].click()
     util.click(driver, By.XPATH, '//span[text()="Disconnect"]')
     time.sleep(2)
+
+
+def switch_handle(keywords_str):
+    keywords = keywords_str.split(",")
+    window_index = 0
+    loop_times = 0
+    while loop_times < 10:  # 等待10s，避免窗口没来得及打开
+        time.sleep(1)
+        if window_index >= len(driver.window_handles):
+            # 所有页面都找完后没有插件页面，打开插件页面
+            window_index = 0
+            if "chrome" in keywords_str:
+                keyboard_c = KeyboardController()
+                with keyboard_c.pressed(Key.shift, Key.alt):
+                    keyboard_c.press("o")
+                time.sleep(2)
+                driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+                return
+        driver.switch_to.window(driver.window_handles[window_index])
+        for keyword in keywords:
+            if keyword in driver.current_url:
+                print("找到页面了，url = " + driver.current_url)
+                return
+        window_index = window_index + 1
 
 
 class WorldStore:
@@ -58,27 +66,53 @@ class WorldStore:
         self.current_wallet_id = None
         self.twitter_token = None
         self.tokens = []
+        self.account_index = 0
 
     def twitter_login(self):
-        driver.switch_to.window(driver.window_handles[1])
-        driver.get("https://twitter.com/i/flow/login?redirect_after_login=%2Fhome")
+        switch_handle("okx,crypto,x.com")
+        driver.get("https://x.com/")
         # token 已经用完
         if len(self.tokens) == 0:
             print("没有token了")
-            driver.quit()
         self.twitter_token = self.tokens[0]
         cookies = {'value': self.twitter_token, 'name': 'auth_token'}
         driver.add_cookie(cookie_dict=cookies)
-        driver.get("https://twitter.com")
 
-        time.sleep(2)
+        driver.get(
+            "https://x.com/i/oauth2/authorize?response_type=code&client_id=aWVQSnRnalFXZHphOHo0OEVUNWc6MTpjaQ&redirect_uri=https://worldstore.mirrorworld.fun/twitter&scope=follows.read%20follows.write%20users.read%20tweet.read%20offline.access&state=BLyhYwnrDZUpXk7FVWKiuZLu3cUf5thn4mQJSS5vJ2qM&code_challenge=challenge&code_challenge_method=plain")
+        time.sleep(3)
+
+    def switch_wallet(self):
+        switch_handle("chrome")
+        account_element = driver.find_element(By.XPATH, '//div[contains(text(),"账户")]')
+        account_index = account_element.text.replace("账户 ", "")
+        account_element.click()
+
+        next_account_index = int(account_index) + 1
+        self.account_index = next_account_index
+        next_account_name = str(next_account_index)
+        if next_account_index < 10:
+            next_account_name = "0" + next_account_name
+        next_account_name = "账户 " + next_account_name
+        try:
+            next_account_element = driver.find_element(By.XPATH, '//div[text()="' + next_account_name + '"]')
+            next_account_element.click()
+        except Exception as e:
+            print(e)
+            if account_index == self.account_num:
+                return
+            target = driver.find_element(By.XPATH, '//div[text()="添加账户"]')
+            driver.execute_script("arguments[0].scrollIntoView();", target)
+            time.sleep(1)
+            util.click(driver, By.XPATH, '//div[text()="添加账户"]')
+            util.click(driver, By.XPATH, '//div[text()="' + next_account_name + '"]')
 
     def wallet_login(self):
         # 打开一个网址
         driver.get("https://worldstore.mirrorworld.fun/leaderboard")
 
         time.sleep(1)
-        driver.switch_to.window(driver.window_handles[1])
+        switch_handle("chrome")
 
         if self.current_wallet_id is not None:
             util.click(driver, By.XPATH, '//span[text()="导入已有钱包"]')
@@ -96,6 +130,7 @@ class WorldStore:
             util.click(driver, By.XPATH, '//span[text()="确认"]')
             util.click(driver, By.XPATH, '//span[text()="设为默认钱包"]')
             util.click(driver, By.XPATH, '//span[text()="开启你的 Web3 之旅"]')
+            self.switch_wallet()
             driver.close()
         else:
             util.click(driver, By.XPATH, '//span[text()="创建新钱包"]')
@@ -118,6 +153,7 @@ class WorldStore:
                 "word_list": [],
                 "word_index": [],
                 "twitter_follow": [],
+                "account_index": 1,
                 "id": str(uuid.uuid4())
 
             }
@@ -138,19 +174,10 @@ class WorldStore:
             self.wallet_data_json[wallet_data["id"]] = wallet_data
             self.current_wallet_id = wallet_data["id"]
             self.write_json()
-            util.click(driver, By.XPATH, '//div[text()="工具集"]')
-            util.click(driver, By.XPATH, '//div[text()="批量添加账户"]')
-
-            time.sleep(3)
-            driver.switch_to.window(driver.window_handles[2])
-            driver.find_elements(By.TAG_NAME, "input")[3].send_keys(str(self.account_num - 1))
-            util.click(driver, By.XPATH, '//span[text()="确定"]')
-            time.sleep(self.account_num)
-            driver.close()
 
     def connect_wallet(self, account_index):
         print("正在连接第" + str(account_index) + "个钱包账号")
-        driver.switch_to.window(driver.window_handles[0])
+        switch_handle("leaderboard")
 
         # 通过按钮名称找到按钮元素
         util.click(driver, By.XPATH, '//button[text()="Connect Wallet"]')
@@ -162,22 +189,36 @@ class WorldStore:
         util.click(driver, By.XPATH, '//div[text()="连接"]')
 
         time.sleep(2)
-        driver.switch_to.window(driver.window_handles[0])
+        switch_handle("leaderboard")
         util.click(driver, By.XPATH, '//div[text()="Phantom"]')
 
-        time.sleep(3)
+        time.sleep(5)
 
         driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
         util.click(driver, By.XPATH, '//div[text()="确认"]')
 
-        driver.switch_to.window(driver.window_handles[0])
-        util.click(driver, By.XPATH, '//span[text()="Follow on X"]')
+        time.sleep(1)
 
-        driver.switch_to.window(driver.window_handles[2])
+        switch_handle("leaderboard")
+        try:
+            driver.find_element(By.XPATH, '//span[text()="Follow on X"]')
+        except Exception as e:
+            print(e)
+            print("该钱包账号已被关注，跳过")
+            disconnect_wallet()
+            return
+        ws.twitter_login()
+
         util.click(driver, By.XPATH, '//span[text()="Authorize app"]')
-        time.sleep(10)
+
+        for _ in range(5):
+            if "worldstore" in driver.current_url:
+                time.sleep(4)
+                break
+            time.sleep(2)
 
         wallet_data = self.wallet_data_json.get(self.current_wallet_id)
+        wallet_data["account_index"] = self.account_index
         twitter_follow = wallet_data["twitter_follow"]
         twitter_follow.append(self.twitter_token)
         wallet_data["twitter_follow"] = twitter_follow
@@ -187,7 +228,6 @@ class WorldStore:
         self.tokens.remove(self.twitter_token)
         self.write_tokens()
 
-        driver.close()
         disconnect_wallet()
 
     def write_json(self):
@@ -203,12 +243,11 @@ class WorldStore:
 
 if __name__ == '__main__':
     ws = WorldStore()
-
-    with open('tokens.txt', 'r') as token_f:
+    with open(config.tokens_path, 'r') as token_f:
         for token in token_f.readlines():
             ws.tokens.append(token.strip().replace('\n', ''))
     used_tokens = []
-    with open("wallet.json", "r") as wallet_f:
+    with open(config.wallet_path, "r") as wallet_f:
         wallet_json = json.loads(wallet_f.read())
         ws.wallet_data_json = wallet_json
         for k, v in wallet_json.items():
@@ -219,13 +258,21 @@ if __name__ == '__main__':
     ws.tokens = [item for item in ws.tokens if item not in used_tokens]
 
     try:
-        ws.wallet_login()
-        for i in range(ws.account_num):
-            ws.twitter_login()
-            ws.connect_wallet(i + 1)
-            if i == ws.account_num - 1:
-                break
-            switch_wallet()
+        while True:
+            if ws.current_wallet_id is not None:
+                wd = wallet_json[ws.current_wallet_id]
+                if "account_index" in wd:
+                    ws.account_index = wd["account_index"]
+                else:
+                    ws.account_index = 1
+            ws.wallet_login()
+            for i in range(ws.account_index, ws.account_num):
+                ws.connect_wallet(i + 1)
+                if i == ws.account_num - 1:
+                    break
+                ws.switch_wallet()
+            # 清空当前钱包，重新创建新的钱包
+            ws.current_wallet_id = None
     except Exception as e:
         print(e)
     finally:
