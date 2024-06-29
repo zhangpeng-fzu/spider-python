@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-import universal_character_recognition as AICloud
+import recognition as AICloud
 from pynput.keyboard import Key, Controller as KeyboardController
 import json
 import util
@@ -30,7 +30,7 @@ def open_driver():
 
 
 def disconnect_wallet():
-    switch_handle("leaderboard")
+    switch_handle("assisterr")
     driver.find_elements(By.XPATH, '//span[contains(text(),"...")]')[0].click()
     util.click(driver, By.XPATH, '//span[text()="Disconnect"]')
     time.sleep(2)
@@ -65,13 +65,15 @@ def switch_handle(keywords_str):
         window_index = window_index + 1
 
 
-class WorldStore:
+class Assisterr:
     def __init__(self):
-        self.account_num = 100  # 单个钱包的账户数量
+        self.account_num = 500  # 单个钱包的账户数量
         self.wallet_data_json = {}
         self.current_wallet_id = None
         self.twitter_token = None
-        self.tokens = []
+        self.twitter_tokens = []
+        self.discord_token = None
+        self.discord_tokens = []
         self.account_index = 1
         self.follow_url = ""
 
@@ -79,14 +81,33 @@ class WorldStore:
         switch_handle("okx,crypto,x.com")
         driver.get("https://x.com/")
         # token 已经用完
-        if len(self.tokens) == 0:
+        if len(self.twitter_tokens) == 0:
             print("没有token了")
-        self.twitter_token = self.tokens[0]
+        self.twitter_token = self.twitter_tokens[0]
         cookies = {'value': self.twitter_token, 'name': 'auth_token'}
         driver.add_cookie(cookie_dict=cookies)
 
-        driver.get(self.follow_url)
+        driver.get("https://x.com/home")
         time.sleep(3)
+
+    def discord_login(self):
+        switch_handle("okx,crypto,x.com")
+        driver.get('https://discord.com/login')  # 打开Discord
+        # 登录页面
+        js = """
+        function login(token) {
+        setInterval(() => {
+        document.body.appendChild(document.createElement('iframe')).content
+        Window.localStorage.token = `"${token}"`
+        }, 50);
+        setTimeout(() => {
+        location.reload();
+        }, 500);
+        }
+        """
+        time.sleep(3)  # 等待页面加载
+        self.discord_token = self.discord_tokens[0]
+        driver.execute_script(js + f'login("{self.discord_token}")')
 
     def switch_wallet(self):
         if self.account_index >= self.account_num:
@@ -123,7 +144,7 @@ class WorldStore:
 
     def wallet_login(self):
         # 打开一个网址
-        driver.get("https://worldstore.mirrorworld.fun/leaderboard")
+        driver.get("https://build.assisterr.ai/?ref=666a657c99966fe1fc5e2e68")
         time.sleep(1)
         switch_handle("chrome")
 
@@ -183,6 +204,7 @@ class WorldStore:
             "word_list": [],
             "word_index": [],
             "twitter_follow": [],
+            "discord_follow": [],
             "account_index": 1,
             "id": str(uuid.uuid4())
 
@@ -207,12 +229,12 @@ class WorldStore:
 
     def connect_wallet(self, account_index):
         print("正在连接第" + str(account_index) + "个钱包账号")
-        switch_handle("leaderboard")
+        switch_handle("assisterr")
 
         # 通过按钮名称找到按钮元素
-        util.click(driver, By.XPATH, '//button[text()="Connect Wallet"]')
+        util.click(driver, By.XPATH, '//button[text()="Select Wallet"]')
 
-        util.click(driver, By.XPATH, '//div[text()="Phantom"]')
+        util.click(driver, By.XPATH, '//span[text()="Detected"]')
 
         time.sleep(3)
         driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
@@ -220,12 +242,7 @@ class WorldStore:
             switch_handle("chrome")
         util.click(driver, By.XPATH, '//div[text()="连接"]')
 
-        time.sleep(2)
-        switch_handle("leaderboard")
-        util.click(driver, By.XPATH, '//div[text()="Phantom"]')
-
-        time.sleep(5)
-
+        time.sleep(3)
         driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
         # 避免悬浮窗口未弹出
         if "chrome" not in driver.current_url:
@@ -233,28 +250,26 @@ class WorldStore:
         util.click(driver, By.XPATH, '//div[text()="确认"]')
 
         time.sleep(1)
+        driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+        # 避免悬浮窗口未弹出
+        if "chrome" not in driver.current_url:
+            switch_handle("chrome")
+        util.click(driver, By.XPATH, '//div[text()="确认"]')
 
-        switch_handle("leaderboard")
-        skip_follow = False
+        switch_handle("assisterr")
+        time.sleep(3)
+
         try:
-            driver.find_element(By.XPATH, '//span[text()="Follow on X"]')
-            self.follow_url = driver.find_element(By.LINK_TEXT, "Follow on X").get_property("href").replace(
-                "twitter.com", "x.com")
-
+            driver.find_element(By.XPATH, '//button[text()="X (Twitter) auth"]')
         except Exception as e:
             print(e)
-            print("该钱包账号已被关注，跳过")
-            skip_follow = True
+            # 没找到，第一次链接
+            util.click(driver, By.XPATH, '//button[text()="Start building"]')
 
-        if not skip_follow:
-            self.twitter_follow()
+        self.twitter_follow()
+        # self.discord_follow()
 
-        wallet_data = self.wallet_data_json.get(self.current_wallet_id)
-        wallet_data["account_index"] = self.account_index
-        twitter_follow = wallet_data["twitter_follow"]
-        twitter_follow.append(self.twitter_token)
-        wallet_data["twitter_follow"] = twitter_follow
-        self.wallet_data_json[self.current_wallet_id] = wallet_data
+        self.wallet_data_json.get(self.current_wallet_id)["account_index"] = self.account_index
         self.write_json()
 
         disconnect_wallet()
@@ -264,49 +279,76 @@ class WorldStore:
         while not followed_success:
 
             ws.twitter_login()
+            switch_handle("assisterr")
+            # twitter关注
+            util.click(driver, By.XPATH, '//button[text()="X (Twitter) auth"]')
+            time.sleep(10)
+            print(driver.current_url)
+            driver.get(driver.current_url.replace("twitter.com", "x.com"))
+
             util.click(driver, By.XPATH, '//span[text()="Authorize app"]')
 
             for _ in range(5):
-                if "worldstore" in driver.current_url:
+                if "assisterr" in driver.current_url:
                     time.sleep(10)
                     if "already" not in driver.current_url:
                         followed_success = True
                     break
                 time.sleep(2)
+            self.wallet_data_json.get(self.current_wallet_id)["twitter_follow"].append(self.twitter_token)
+            # 只剩一个token时，不删除
+            if len(self.twitter_tokens) > 1:
+                self.twitter_tokens.remove(self.twitter_token)
+                self.write_tokens("twitter")
 
-            self.tokens.remove(self.twitter_token)
-            self.write_tokens()
+    def discord_follow(self):
+        self.discord_login()
+        switch_handle("assisterr")
+        # twitter关注
+        util.click(driver, By.XPATH, '//button[text()="Discord auth"]')
+        time.sleep(5)
+        util.click(driver, By.XPATH, '//div[text()="授权')
+        time.sleep(5)
+        self.wallet_data_json.get(self.current_wallet_id)["discord_follow"].append(self.discord_token)
+        if len(self.discord_tokens) > 1:
+            self.discord_tokens.remove(self.discord_token)
+            self.write_tokens("discord")
 
     def write_json(self):
         with open(config.wallet_path, "w") as f:
             print(self.wallet_data_json)
             json.dump(self.wallet_data_json, f)
 
-    def write_tokens(self):
-        with open(config.tokens_path, "w") as f:
-            for t in self.tokens:
-                f.write(t + "\n")
+    def write_tokens(self, token_type):
+        if token_type == "twitter":
+            with open(config.twitter_tokens_path, "w") as f:
+                for t in self.twitter_tokens:
+                    f.write(t + "\n")
+        else:
+            with open(config.discord_tokens_path, "w") as f:
+                for t in self.discord_tokens:
+                    f.write(t + "\n")
 
 
 if __name__ == '__main__':
-    ws = WorldStore()
-    with open(config.tokens_path, 'r') as token_f:
+    ws = Assisterr()
+    with open(config.twitter_tokens_path, 'r') as token_f:
         for token in token_f.readlines():
-            ws.tokens.append(token.strip().replace('\n', ''))
-    used_tokens = []
+            ws.twitter_tokens.append(token.strip().replace('\n', ''))
+    with open(config.discord_tokens_path, 'r') as token_f:
+        for token in token_f.readlines():
+            ws.discord_tokens.append(token.strip().replace('\n', ''))
     with open(config.wallet_path, "r") as wallet_f:
         wallet_json = json.loads(wallet_f.read())
         ws.wallet_data_json = wallet_json
         for k, v in wallet_json.items():
-            if len(v["twitter_follow"]) < 100:
+            if v["account_index"] < 500:
                 ws.current_wallet_id = k
-            used_tokens.append(v["twitter_follow"])
-
-    ws.tokens = [item for item in ws.tokens if item not in used_tokens]
 
     try:
         while True:
             driver = open_driver()
+
             if ws.current_wallet_id is not None:
                 wd = wallet_json[ws.current_wallet_id]
                 if "account_index" in wd:
@@ -317,6 +359,7 @@ if __name__ == '__main__':
                     ws.current_wallet_id = None
                     ws.account_index = 1
             ws.wallet_login()
+            # ws.discord_login()
             for i in range(ws.account_index, ws.account_num + 1):
                 ws.connect_wallet(i)
                 ws.switch_wallet()
@@ -327,6 +370,6 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(e)
-    finally:
-        driver.quit()
-        driver.close()
+    # finally:
+    # driver.quit()
+    # driver.close()
